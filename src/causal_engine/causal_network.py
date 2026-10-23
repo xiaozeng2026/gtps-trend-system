@@ -20,6 +20,7 @@ class CausalNetwork:
         self.graph = nx.DiGraph()
         self.nodes_data: Dict[str, CausalNode] = {}
         self.links_data: Dict[Tuple[str, str], CausalLink] = {}
+        self.current_theme: Dict[str, Any] = {}  # 当前生效主题的完整 JSON
         self._initialize_tech_energy_nexus()
 
     def _initialize_tech_energy_nexus(self):
@@ -197,13 +198,10 @@ class CausalNetwork:
         """
         根据标准主题 JSON 字典，在 0 秒内热插拔注册节点与边。
         返回 theme_id 便于调用方识别当前生效主题。
-        标准 schema:
-          { theme_id, theme_name, description,
-            nodes: [{node_id, name, domain, intensity?, description?}],
-            links: [{source_id, target_id, weight, delay_months?, mechanism?}],
-            personas?, scenarios? }
+        主题完整 JSON 会缓存至 self.current_theme，供其他引擎读取（scenarios/personas）。
         """
         self.clear()
+        self.current_theme = theme_data  # 整份缓存，供 scenario_engine / agent_sandbox 等消费
         theme_id = theme_data.get("theme_id", "UNKNOWN_THEME")
 
         # ---- 注册节点 ----

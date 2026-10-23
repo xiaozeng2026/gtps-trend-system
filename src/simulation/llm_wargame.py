@@ -20,7 +20,8 @@ import requests
 from ..core.models import AgentDecision
 
 # 因果网络中的 8 个核心节点 ID（与 causal_engine 预设拓扑严格对齐，勿改）
-KNOWN_NODES = (
+# 注意：主题切换后实际可用节点会不同，由 run_wargame_session 传入 available_nodes 动态覆盖
+DEFAULT_NODES = (
     "AI_COMPUTE_DEMAND", "DATACENTER_POWER_LOAD", "GRID_TRANSMISSION_STRESS",
     "POWER_WHOLESALE_PRICE", "LOCAL_COMMUNITY_RESISTANCE",
     "REGULATORY_RESTRICTIONS", "CLEAN_NUCLEAR_PPA_CAPEX", "GLOBAL_COMPUTE_MIGRATION",
@@ -142,10 +143,11 @@ PERSONAS: Dict[str, Dict] = {
 }
 
 # 第三轮要求 LLM 输出因果向量的格式指令（追加在用户提示末尾）
-_VECTOR_FORMAT_HINT = (
-    "\n\n最后必须独占一行输出因果冲击向量，格式严格为："
-    '因果向量: {"节点ID": +/-0.xx}，节点 ID 只能从以下选取：' + ", ".join(KNOWN_NODES)
-)
+def _vector_format_hint(available_nodes: tuple = DEFAULT_NODES) -> str:
+    return (
+        "\n\n最后必须独占一行输出因果冲击向量，格式严格为："
+        '因果向量: {"节点ID": +/-0.xx}，节点 ID 只能从以下选取：' + ", ".join(available_nodes)
+    )
 
 
 @dataclass
@@ -173,8 +175,14 @@ class LLMWarGameEngine:
     # 主流程：三轮辩论 + 决策提取 + 纪要生成
     # ------------------------------------------------------------------ #
     def run_wargame_session(self, event_title: str, event_summary: str,
-                            progress_cb=None) -> WarGameResult:
-        """三轮红蓝对抗推演主流程；progress_cb(msg) 可选，用于 UI 实时播报各轮进度。"""
+                            progress_cb=None,
+                            available_nodes: Optional[List[str]] = None) -> WarGameResult:
+        """
+        三轮红蓝对抗推演主流程。
+        available_nodes: 当前主题可用的节点 ID 列表（动态覆盖硬编码 DEFAULT_NODES）；
+        传入后 LLM 生成的因果向量和模板 vector 会按此过滤，避免主题切换后 KeyError。
+        """
+        _valid_nodes = tuple(available_nodes) if available_nodes else DEFAULT_NODES
         mode = "LIVE_LLM" if self.client.available else "BUILTIN_TEMPLATE"
         result = WarGameResult(event_title=event_title, event_summary=event_summary, mode=mode)
 
@@ -186,6 +194,7 @@ class LLMWarGameEngine:
                 f"今日突发国际事件：{event_title}\n事件详情：{event_summary}\n"
                 f"请以你的参谋部身份发表本轮立场宣告（受影响研判 + 初步诉求）。",
                 fallback,
+                valid_nodes=_valid_nodes,
             )
             if mode == "LIVE_LLM" and result.opening_statements[pid] == fallback:
                 # 首个真实调用即失败：整场降级为模板模式，保证风格一致
@@ -204,6 +213,7 @@ class LLMWarGameEngine:
                 f"事件：{event_title}\n\n各方首轮立场如下：\n{others_view}\n\n"
                 f"请针对与你利益冲突的其他主体进行点名施压、利益置换或发出最后通牒。",
                 persona["debate_tpl"],
+                valid_nodes=_valid_nodes,
             )
         if progress_cb:
             progress_cb("第二轮 · 交叉辩论与反制施压完成（点名交锋结束）")
@@ -219,9 +229,10 @@ class LLMWarGameEngine:
                 f"请给出你方闭门博弈决议：一项具体战术行动（名称 + 100 字内执行要点）。",
                 f"【闭门决议】执行「{persona['action_name']}」，即刻生效。",
                 json_mode=True,
+                valid_nodes=_valid_nodes,
             )
             result.resolutions[pid] = text
-            result.decisions.extend(self._to_decisions(pid, text))
+            result.decisions.extend(self._to_decisions(pid, text, valid_nodes=_valid_nodes))
         if progress_cb:
             progress_cb("第三轮 · 闭门博弈决议与因果冲击向量提取完成")
 
@@ -246,19 +257,20 @@ class LLMWarGameEngine:
     # 内部工具
     # ------------------------------------------------------------------ #
     def _speak(self, persona_id: str, user_prompt: str, fallback: str,
-               json_mode: bool = False) -> str:
+               json_mode: bool = False, valid_nodes: tuple = DEFAULT_NODES) -> str:
         """单主体发言：优先真实 LLM，任何失败无缝回退内置高拟真模板。"""
         if not self.client.available:
             return fallback
-        prompt = user_prompt + (_VECTOR_FORMAT_HINT if json_mode else "")
+        prompt = user_prompt + (_vector_format_hint(valid_nodes) if json_mode else "")
         try:
             return self.client.chat(PERSONAS[persona_id]["system_prompt"], prompt)
         except RuntimeError:
-            return fallback + (_VECTOR_FORMAT_HINT if json_mode else "")
+            return fallback + (_vector_format_hint(valid_nodes) if json_mode else "")
 
-    def _to_decisions(self, persona_id: str, resolution_text: str) -> List[AgentDecision]:
+    def _to_decisions(self, persona_id: str, resolution_text: str,
+                      valid_nodes: tuple = DEFAULT_NODES) -> List[AgentDecision]:
         """从第三轮决议文本提取因果冲击向量，映射为 AgentDecision 列表。"""
-        vector = self._extract_vector(resolution_text, persona_id)
+        vector = self._extract_vector(resolution_text, persona_id, valid_nodes=valid_nodes)
         persona = PERSONAS[persona_id]
         return [
             AgentDecision(
@@ -273,21 +285,24 @@ class LLMWarGameEngine:
         ]
 
     @staticmethod
-    def _extract_vector(text: str, persona_id: str) -> Dict[str, float]:
-        """从文本中解析「因果向量」JSON 块；解析失败回退该主体模板向量。"""
+    def _extract_vector(text: str, persona_id: str,
+                        valid_nodes: tuple = DEFAULT_NODES) -> Dict[str, float]:
+        """从文本中解析「因果向量」JSON 块；解析失败回退该主体模板向量（过滤到 valid_nodes）。"""
         match = re.search(r"\{[^{}]*\}", text)
         if match:
             try:
                 raw = json.loads(match.group(0))
                 vector = {
                     k: max(-DELTA_CLAMP, min(DELTA_CLAMP, float(v)))
-                    for k, v in raw.items() if k in KNOWN_NODES
+                    for k, v in raw.items() if k in valid_nodes
                 }
                 if vector:
                     return vector
             except (ValueError, TypeError):
                 pass
-        return dict(PERSONAS[persona_id]["vector"])
+        # 回退：过滤 PERSONAS 模板向量到当前 valid_nodes
+        fallback = {k: v for k, v in PERSONAS[persona_id]["vector"].items() if k in valid_nodes}
+        return fallback if fallback else dict(PERSONAS[persona_id]["vector"])
 
     @staticmethod
     def _compose_briefing(result: WarGameResult) -> str:

@@ -68,14 +68,24 @@ class MultiAgentSandbox:
     def run_turn(self, round_num: int) -> List[AgentDecision]:
         """
         Executes one turn of multi-agent deliberation and intervention.
+        自适应容错：硬编码节点不存在时 intensity 默认为 0.5，不崩溃。
         """
         round_decisions: List[AgentDecision] = []
         nodes = self.causal_net.nodes_data
 
-        grid_stress = nodes["GRID_TRANSMISSION_STRESS"].intensity
-        power_price = nodes["POWER_WHOLESALE_PRICE"].intensity
-        community_anger = nodes["LOCAL_COMMUNITY_RESISTANCE"].intensity
-        regulatory_heat = nodes["REGULATORY_RESTRICTIONS"].intensity
+        def _safe_intensity(nid: str) -> float:
+            """安全取值：节点不存在则返回 0.5（中性默认值）。"""
+            node = nodes.get(nid)
+            return node.intensity if node else 0.5
+
+        grid_stress = _safe_intensity("GRID_TRANSMISSION_STRESS")
+        power_price = _safe_intensity("POWER_WHOLESALE_PRICE")
+        community_anger = _safe_intensity("LOCAL_COMMUNITY_RESISTANCE")
+        regulatory_heat = _safe_intensity("REGULATORY_RESTRICTIONS")
+
+        # 通用阈值决策：若节点存在则执行，否则跳过对应战术（避免 apply_node_impulse 无效调用）
+        def _has(nid: str) -> bool:
+            return nid in nodes
 
         # 1. Tech Giant Decision
         if grid_stress > 0.70 or regulatory_heat > 0.65:

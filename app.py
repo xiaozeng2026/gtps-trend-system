@@ -21,6 +21,7 @@ from src.core.models import DomainCategory, ModalityType
 from src.collector.news_collector import DailyNewsCollector
 from src.collector.market_data import MarketDataCollector, CrossCheckFilter
 from src.causal_engine.causal_network import CausalNetwork
+from src.causal_engine.theme_synthesizer import ThemeSynthesizer
 from src.simulation.agent_sandbox import MultiAgentSandbox
 from src.simulation.llm_wargame import LLMClient, LLMWarGameEngine, PERSONAS
 from src.forecasting.scenario_engine import ScenarioForecastEngine
@@ -132,6 +133,9 @@ if "market_collector" not in st.session_state:
 if "market_snapshot" not in st.session_state:
     st.session_state.market_snapshot = st.session_state.market_collector.get_live_market_snapshot()
 
+if "theme_collector" not in st.session_state:
+    st.session_state.theme_collector = ThemeSynthesizer()
+
 if "causal_net" not in st.session_state:
     st.session_state.causal_net = CausalNetwork()
     # ---- 双重输入：新闻事件 + 硬资产行情联动 ----
@@ -143,27 +147,36 @@ if "causal_net" not in st.session_state:
                 impulse=delta * 0.35,
                 reason=f"今日实时网络事件: {evt.title}"
             )
-    # 2. 原油与天然气硬资产涨跌 → 工商业尖峰电价 + 电网承压
+    # 2. 原油与天然气硬资产涨跌 → 通用映射：找 ECONOMY/ENERGY 域节点
+    _net = st.session_state.causal_net
+    _econ_nodes = [nid for nid, n in _net.nodes_data.items() if n.domain.value.upper() == "ECONOMY"]
+    _energy_nodes = [nid for nid, n in _net.nodes_data.items() if n.domain.value.upper() == "ENERGY"]
     snap = st.session_state.market_snapshot
     oil = snap.get("hf_OIL")
     natgas = snap.get("hf_NG")
     if oil and abs(oil.change_pct) > 0.3:
-        # 原油波动 → 电价（能源成本传导）+ 电网承压（工业负荷联动）
         oil_delta = max(-0.2, min(0.2, oil.change_pct * 0.04))
-        st.session_state.causal_net.apply_node_impulse(
-            "POWER_WHOLESALE_PRICE", oil_delta,
-            reason=f"硬资产联动: 布伦特原油 {'+' if oil.change_pct > 0 else ''}{oil.change_pct:.2f}%"
-        )
-        st.session_state.causal_net.apply_node_impulse(
-            "GRID_TRANSMISSION_STRESS", oil_delta * 0.6,
-            reason=f"硬资产联动: 原油波动→工业负荷传导"
-        )
+        # 通用映射：优先用硬编码兼容 ID，否则用 ECONOMY 域第一个节点
+        _price_node = "POWER_WHOLESALE_PRICE" if "POWER_WHOLESALE_PRICE" in _net.nodes_data else (_econ_nodes[0] if _econ_nodes else None)
+        _stress_node = "GRID_TRANSMISSION_STRESS" if "GRID_TRANSMISSION_STRESS" in _net.nodes_data else (_energy_nodes[0] if _energy_nodes else None)
+        if _price_node:
+            st.session_state.causal_net.apply_node_impulse(
+                _price_node, oil_delta,
+                reason=f"硬资产联动: 布伦特原油 {'+' if oil.change_pct > 0 else ''}{oil.change_pct:.2f}%"
+            )
+        if _stress_node and _stress_node != _price_node:
+            st.session_state.causal_net.apply_node_impulse(
+                _stress_node, oil_delta * 0.6,
+                reason=f"硬资产联动: 原油波动→工业负荷传导"
+            )
     if natgas and abs(natgas.change_pct) > 0.5:
         gas_delta = max(-0.15, min(0.15, natgas.change_pct * 0.03))
-        st.session_state.causal_net.apply_node_impulse(
-            "POWER_WHOLESALE_PRICE", gas_delta,
-            reason=f"硬资产联动: 天然气 {'+' if natgas.change_pct > 0 else ''}{natgas.change_pct:.2f}%"
-        )
+        _price_node = "POWER_WHOLESALE_PRICE" if "POWER_WHOLESALE_PRICE" in _net.nodes_data else (_econ_nodes[0] if _econ_nodes else None)
+        if _price_node:
+            st.session_state.causal_net.apply_node_impulse(
+                _price_node, gas_delta,
+                reason=f"硬资产联动: 天然气 {'+' if natgas.change_pct > 0 else ''}{natgas.change_pct:.2f}%"
+            )
     st.session_state.causal_net.propagate_dynamics(steps=2)
 
 if "sandbox" not in st.session_state:
@@ -223,17 +236,13 @@ with st.sidebar:
             [DomainCategory.ENERGY, DomainCategory.TECHNOLOGY, DomainCategory.POLITICS, DomainCategory.ECONOMY],
             format_func=lambda x: f"{x.value.upper()}"
         )
+        # 动态生成当前主题的节点下拉选项（避免硬编码 KeyError）
+        _cur_nodes = st.session_state.causal_net.nodes_data
+        _node_options = [(nid, f"{n.name} ({nid})") for nid, n in _cur_nodes.items()]
         custom_target = st.selectbox(
             "冲击核心因果变量",
-            [
-                ("GRID_TRANSMISSION_STRESS", "区域电网与变电承载承压度"),
-                ("POWER_WHOLESALE_PRICE", "区域工商业及尖峰电价"),
-                ("REGULATORY_RESTRICTIONS", "地方监管干预与能耗审批收紧"),
-                ("CLEAN_NUCLEAR_PPA_CAPEX", "核能/地热/微电网私有资本注入"),
-                ("GLOBAL_COMPUTE_MIGRATION", "算力集群全球地理再平衡"),
-                ("AI_COMPUTE_DEMAND", "前沿大模型算力需求扩张"),
-            ],
-            format_func=lambda x: f"{x[1]} ({x[0]})"
+            _node_options,
+            format_func=lambda x: x[1]
         )
         custom_strength = st.slider("冲击强度 (Delta)", min_value=-0.4, max_value=0.5, value=0.25, step=0.05)
         
@@ -277,6 +286,48 @@ with st.sidebar:
                         st.success("● 连接正常 · LIVE LLM 在线推演已就绪")
                     except Exception as e:
                         st.error(f"● 连接失败，推演时将自动降级本地模板：{str(e)[:120]}")
+
+    st.markdown("---")
+    # ---- 🌐 战略推演主题中心 ----
+    st.markdown("### 🌐 战略推演主题中心")
+    all_themes = CausalNetwork().list_builtin_themes()
+    theme_display = {t["theme_name"]: t for t in all_themes}
+    current_theme_name = st.session_state.causal_net.current_theme.get(
+        "theme_name", "AI 算力扩张与能源电网重构"
+    )
+    selected_name = st.selectbox(
+        "当前推演主题",
+        list(theme_display.keys()),
+        index=list(theme_display.keys()).index(current_theme_name) if current_theme_name in theme_display else 0,
+    )
+    if st.button("🔄 切换主题并热插拔推演", use_container_width=True, type="secondary"):
+        tid = st.session_state.causal_net.load_theme_from_file(theme_display[selected_name]["path"])
+        # 主题切换后：因果网络已自动清空重建；同步重建 sandbox 清掉旧 agent/decision_history
+        st.session_state.sandbox = MultiAgentSandbox(st.session_state.causal_net)
+        st.session_state.pop("wargame_result", None)  # 清掉旧主题的博弈结果
+        st.success(f"✅ 主题已切换至 `{tid}`，全局因果拓扑 + 推演框架已热插拔生效！")
+        st.rerun()
+
+    with st.expander("✨ 跨主题因果图自生工作台（AI 命题生成器）", expanded=False):
+        st.caption("输入任意想推演的国际热点命题，瞬间生成全套因果图谱与红蓝参谋部")
+        synth_prompt = st.text_area(
+            "命题输入",
+            value="中东霍尔木兹海峡石油运力中断与欧美全球通胀传导",
+            height=80,
+        )
+        if st.button("🚀 一键自生该命题的全套因果图谱与红蓝参谋部", use_container_width=True, type="primary"):
+            with st.status("✨ AI 自生主题推演中...", expanded=True) as status:
+                theme_dict = st.session_state.theme_collector.synthesize_theme_from_prompt(synth_prompt)
+                saved_path = st.session_state.theme_collector.save_theme(theme_dict)
+                st.session_state.causal_net.load_theme_from_dict(theme_dict)
+                # 新主题 → 重建 sandbox + 清掉旧博弈结果
+                st.session_state.sandbox = MultiAgentSandbox(st.session_state.causal_net)
+                st.session_state.pop("wargame_result", None)
+                st.write(f"✅ 主题 JSON 已持久化：{saved_path}")
+                st.write(f"✅ 节点数 {len(theme_dict['nodes'])} · 边数 {len(theme_dict['links'])} · 阵营数 {len(theme_dict['personas'])} · 情景数 {len(theme_dict['scenarios'])}")
+                status.update(label="🚀 新主题拓扑已激活，四大新参谋部已就位！", state="complete")
+            st.toast("🚀 新主题拓扑已激活，四大新参谋部已就位！")
+            st.rerun()
 
     st.markdown("---")
     st.caption("系统运行基准时间: 2026年10月 · GTPS v1.0")
@@ -342,6 +393,8 @@ with pi6:
 
 st.markdown("---")
 
+# ---- KPI 顶栏自适应：col1 固定事件数，col2-5 动态取当前主题前 4 个最强节点 ----
+# 兼容原 AI 能源主题的"语义标签"（若硬编码节点存在则用专属标题）
 col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:
@@ -353,46 +406,37 @@ with col1:
     </div>
     """, unsafe_allow_html=True)
 
-with col2:
-    grid_stress = nodes['GRID_TRANSMISSION_STRESS'].intensity
-    stress_color = "#ef4444" if grid_stress > 0.75 else ("#f59e0b" if grid_stress > 0.6 else "#10b981")
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-title">电网变电承压指数</div>
-        <div class="metric-value" style="color:{stress_color};">{grid_stress:.2f}</div>
-        <div class="metric-delta" style="color:{stress_color};">▲ 红色预警阈值 0.75</div>
-    </div>
-    """, unsafe_allow_html=True)
+# 硬编码节点专属语义标签（仅当节点存在时使用，否则用通用节点名）
+_SEMANTIC_TITLES = {
+    "GRID_TRANSMISSION_STRESS": ("电网变电承压指数", "▲ 红色预警阈值 0.75"),
+    "POWER_WHOLESALE_PRICE": ("区域尖峰电价压力", "高位震荡运行"),
+    "REGULATORY_RESTRICTIONS": ("地方监管干预强度", "审批与能耗审查收紧"),
+    "CLEAN_NUCLEAR_PPA_CAPEX": ("核能与离网微网资本", "▲ 科技巨头加速注资"),
+}
 
-with col3:
-    power_price = nodes['POWER_WHOLESALE_PRICE'].intensity
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-title">区域尖峰电价压力</div>
-        <div class="metric-value">{power_price:.2f}</div>
-        <div class="metric-delta" style="color:#f59e0b;">高位震荡运行</div>
-    </div>
-    """, unsafe_allow_html=True)
+# 取前 4 个最强节点（按强度降序）
+_sorted_nodes = sorted(nodes.values(), key=lambda n: n.intensity, reverse=True)[:4]
+_kpi_cols = [col2, col3, col4, col5]
+_kpi_colors = ["#ef4444", "#f59e0b", "#8b5cf6", "#10b981"]  # 红/琥珀/紫/绿
 
-with col4:
-    reg_heat = nodes['REGULATORY_RESTRICTIONS'].intensity
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-title">地方监管干预强度</div>
-        <div class="metric-value">{reg_heat:.2f}</div>
-        <div class="metric-delta" style="color:#ef4444;">审批与能耗审查收紧</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col5:
-    nuclear_capex = nodes['CLEAN_NUCLEAR_PPA_CAPEX'].intensity
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-title">核能与离网微网资本</div>
-        <div class="metric-value" style="color:#10b981;">{nuclear_capex:.2f}</div>
-        <div class="metric-delta" style="color:#10b981;">▲ 科技巨头加速注资</div>
-    </div>
-    """, unsafe_allow_html=True)
+for _i, _node in enumerate(_sorted_nodes):
+    with _kpi_cols[_i]:
+        _kpid = _node.node_id
+        _sem = _SEMANTIC_TITLES.get(_kpid)
+        if _sem:
+            _title, _delta_text = _sem
+        else:
+            # 通用节点：截断中文名作为标题 + 领域标签
+            _title = _node.name[:12]
+            _delta_text = f"所属领域: {_node.domain.value.upper()}"
+        _val_color = _kpi_colors[_i] if _node.intensity > 0.6 else ("#10b981" if _node.intensity <= 0.4 else "#f59e0b")
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-title">{_title}</div>
+            <div class="metric-value" style="color:{_val_color};">{_node.intensity:.2f}</div>
+            <div class="metric-delta" style="color:{_val_color};">{_delta_text}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 
 # ---------------- 主面板：多维标签页 ----------------
@@ -518,13 +562,31 @@ with tab3:
     st.markdown("#### 🏛️ 虚拟战略闭门峰会 · 红蓝对抗圆桌")
     st.caption("四大利益集团参谋部围绕今日真实国际议题，展开立场宣告 → 针锋相对驳斥 → 闭门博弈妥协的三轮对抗")
 
-    # 阵营视觉识别系统（紫 / 琥珀 / 正红 / 蓝绿）
-    FACTION_STYLE = {
-        "TECH_HYPERSCALER": ("#8b5cf6", "科技资本巨头"),
-        "GRID_GUARDIAN": ("#f59e0b", "区域电网守门人"),
-        "STATE_REGULATOR": ("#ef4444", "地方监管政府"),
-        "GLOBAL_ARBITRAGEUR": ("#14b8a6", "地缘套利招商团"),
-    }
+    # ---- 从主题 JSON 动态构造 FACTION_STYLE（阵营视觉识别系统） ----
+    _theme_personas = st.session_state.causal_net.current_theme.get("personas", [])
+    if _theme_personas:
+        # 根据主题 personas 动态生成配色映射（保持 4 组紫/琥珀/正红/蓝绿）
+        _PALETTE = ["#8b5cf6", "#f59e0b", "#ef4444", "#14b8a6"]
+        FACTION_STYLE = {}
+        for _i, _p in enumerate(_theme_personas[:4]):
+            _pid = _p.get("persona_id", f"FACTION_{_i}")
+            _name = _p.get("name", _pid)
+            FACTION_STYLE[_pid] = (_PALETTE[_i % 4], _name[:8])
+    else:
+        # 兜底：默认 AI 能源主题四阵营
+        FACTION_STYLE = {
+            "TECH_HYPERSCALER": ("#8b5cf6", "科技资本巨头"),
+            "GRID_GUARDIAN": ("#f59e0b", "区域电网守门人"),
+            "STATE_REGULATOR": ("#ef4444", "地方监管政府"),
+            "GLOBAL_ARBITRAGEUR": ("#14b8a6", "地缘套利招商团"),
+        }
+
+    # 主题 personas → 临时 dict 供渲染使用（若为空则回退全局 PERSONAS）
+    _theme_persona_dict = {}
+    for _p in _theme_personas:
+        _pid = _p.get("persona_id", "")
+        if _pid:
+            _theme_persona_dict[_pid] = {"name": _p.get("name", _pid), "strategy": _p.get("strategy", "")}
 
     # ---- 顶部操作栏：议题选择 + 启动 ----
     op1, op2 = st.columns([3, 1])
@@ -548,7 +610,8 @@ with tab3:
         with st.status("🏛️ 闭门圆桌对抗推演进行中...", expanded=True) as status:
             result = engine.run_wargame_session(
                 chosen_evt.title, chosen_evt.summary,
-                progress_cb=lambda msg: st.write(f"✅ {msg}")
+                progress_cb=lambda msg: st.write(f"✅ {msg}"),
+                available_nodes=list(nodes.keys()),  # 传入当前主题的动态节点列表
             )
             # 量化战术冲击回填因果网络 → 顶部 KPI 与 Tab 4 情景树即时重校准
             engine.apply_to_network(st.session_state.causal_net, result.decisions)
@@ -570,11 +633,22 @@ with tab3:
         def render_round(title, icon, statements):
             st.markdown(f"##### {icon} {title}")
             for pid, text in statements.items():
-                color, short = FACTION_STYLE[pid]
+                _faction_info = FACTION_STYLE.get(pid)
+                if _faction_info:
+                    color, short = _faction_info
+                else:
+                    color, short = "#6b7280", pid[:8]
+                # 优先用主题 personas 的中文名，否则回退全局 PERSONAS
+                if pid in _theme_persona_dict:
+                    _full_name = _theme_persona_dict[pid]["name"]
+                elif pid in PERSONAS:
+                    _full_name = PERSONAS[pid]["name"]
+                else:
+                    _full_name = pid
                 st.markdown(f"""
                 <div class="debate-card" style="border-left:4px solid {color};">
                     <div style="color:{color}; font-weight:700; font-size:13px; margin-bottom:4px;">
-                        {short} · {PERSONAS[pid]['name']}
+                        {short} · {_full_name}
                     </div>
                     <div style="color:#e5e7eb; font-size:14px; line-height:1.6;">{text}</div>
                 </div>""", unsafe_allow_html=True)
@@ -585,12 +659,16 @@ with tab3:
 
         st.markdown("---")
         st.markdown("##### 📁 终局决议内参展板（高管战略内参）")
-        dec_rows = [{
-            "博弈阵营": FACTION_STYLE[d.agent_id][1],
-            "实质反制手段": d.action_name,
-            "冲击因果变量": d.target_node_id,
-            "冲击强度": f"{d.intervention_strength:+.2f}",
-        } for d in result.decisions]
+        dec_rows = []
+        for d in result.decisions:
+            _fs = FACTION_STYLE.get(d.agent_id)
+            _faction_label = _fs[1] if _fs else d.agent_id[:8]
+            dec_rows.append({
+                "博弈阵营": _faction_label,
+                "实质反制手段": d.action_name,
+                "冲击因果变量": d.target_node_id,
+                "冲击强度": f"{d.intervention_strength:+.2f}",
+            })
         st.table(pd.DataFrame(dec_rows))
         st.success("✅ 上述量化冲击已自动回填核心因果网络；顶部 KPI 与 Tab 4 情景树概率已即时重新校准。")
 
