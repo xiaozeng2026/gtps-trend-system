@@ -19,6 +19,7 @@ from datetime import datetime
 
 from src.core.models import DomainCategory, ModalityType
 from src.collector.news_collector import DailyNewsCollector
+from src.collector.market_data import MarketDataCollector, CrossCheckFilter
 from src.causal_engine.causal_network import CausalNetwork
 from src.simulation.agent_sandbox import MultiAgentSandbox
 from src.simulation.llm_wargame import LLMClient, LLMWarGameEngine, PERSONAS
@@ -96,6 +97,28 @@ st.markdown("""
         border-radius: 8px;
         margin-bottom: 10px;
     }
+    .market-pill {
+        background: linear-gradient(135deg, #0f1a2d 0%, #1a2544 100%);
+        border: 1px solid #2a3a60;
+        border-radius: 8px;
+        padding: 10px 14px;
+        text-align: center;
+    }
+    .verify-badge-substantiate {
+        display: inline-block; background-color: #064e3b; color: #6ee7b7;
+        border-radius: 4px; padding: 4px 10px; font-size: 12px; font-weight: 600;
+        border: 1px solid #065f46; margin-top: 8px;
+    }
+    .verify-badge-noise {
+        display: inline-block; background-color: #374151; color: #d1d5db;
+        border-radius: 4px; padding: 4px 10px; font-size: 12px; font-weight: 600;
+        border: 1px solid #4b5563; margin-top: 8px;
+    }
+    .verify-badge-missing {
+        display: inline-block; background-color: #78350f; color: #fcd34d;
+        border-radius: 4px; padding: 4px 10px; font-size: 12px; font-weight: 600;
+        border: 1px solid #92400e; margin-top: 8px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -103,9 +126,16 @@ st.markdown("""
 if "collector" not in st.session_state:
     st.session_state.collector = DailyNewsCollector()
 
+if "market_collector" not in st.session_state:
+    st.session_state.market_collector = MarketDataCollector(timeout=6)
+
+if "market_snapshot" not in st.session_state:
+    st.session_state.market_snapshot = st.session_state.market_collector.get_live_market_snapshot()
+
 if "causal_net" not in st.session_state:
     st.session_state.causal_net = CausalNetwork()
-    # 自动将今日真实捕获的高烈度事件注入因果网络初态
+    # ---- 双重输入：新闻事件 + 硬资产行情联动 ----
+    # 1. 将今日真实捕获的高烈度事件注入因果网络初态
     for evt in st.session_state.collector.collected_events[:10]:
         for node_id, delta in evt.affected_nodes.items():
             st.session_state.causal_net.apply_node_impulse(
@@ -113,6 +143,27 @@ if "causal_net" not in st.session_state:
                 impulse=delta * 0.35,
                 reason=f"今日实时网络事件: {evt.title}"
             )
+    # 2. 原油与天然气硬资产涨跌 → 工商业尖峰电价 + 电网承压
+    snap = st.session_state.market_snapshot
+    oil = snap.get("hf_OIL")
+    natgas = snap.get("hf_NG")
+    if oil and abs(oil.change_pct) > 0.3:
+        # 原油波动 → 电价（能源成本传导）+ 电网承压（工业负荷联动）
+        oil_delta = max(-0.2, min(0.2, oil.change_pct * 0.04))
+        st.session_state.causal_net.apply_node_impulse(
+            "POWER_WHOLESALE_PRICE", oil_delta,
+            reason=f"硬资产联动: 布伦特原油 {'+' if oil.change_pct > 0 else ''}{oil.change_pct:.2f}%"
+        )
+        st.session_state.causal_net.apply_node_impulse(
+            "GRID_TRANSMISSION_STRESS", oil_delta * 0.6,
+            reason=f"硬资产联动: 原油波动→工业负荷传导"
+        )
+    if natgas and abs(natgas.change_pct) > 0.5:
+        gas_delta = max(-0.15, min(0.15, natgas.change_pct * 0.03))
+        st.session_state.causal_net.apply_node_impulse(
+            "POWER_WHOLESALE_PRICE", gas_delta,
+            reason=f"硬资产联动: 天然气 {'+' if natgas.change_pct > 0 else ''}{natgas.change_pct:.2f}%"
+        )
     st.session_state.causal_net.propagate_dynamics(steps=2)
 
 if "sandbox" not in st.session_state:
@@ -234,6 +285,62 @@ with st.sidebar:
 # ---------------- 顶部 KPI 概览看板 ----------------
 nodes = st.session_state.causal_net.nodes_data
 events = st.session_state.collector.collected_events
+snapshot = st.session_state.market_snapshot
+risk_index = st.session_state.market_collector.calculate_macro_risk_index(snapshot)
+
+# ---- 顶栏：全球硬资产实时行情异动雷达（5 胶囊 + 风险指数） ----
+st.markdown("##### 📈 全球核心硬资产实时行情异动雷达")
+# 5 个行情胶囊
+pi1, pi2, pi3, pi4, pi5, pi6 = st.columns([2.2, 2.2, 2.2, 2.2, 2.2, 1.8])
+ASSET_ORDER = [
+    ("🛢️ 布伦特原油", "hf_OIL", "brent"),
+    ("🥇 伦敦现货黄金", "hf_GC", "gold"),
+    ("⛽ 纽约天然气", "hf_NG", "natgas"),
+    ("🛢️ WTI 原油", "hf_CL", "wti"),
+    ("💵 离岸人民币", "fx_susdcnh", "cnh"),  # 在快照里是 None 但保持占位
+]
+pill_cols = [pi1, pi2, pi3, pi4, pi5]
+for idx, (label, code, _) in enumerate(ASSET_ORDER):
+    with pill_cols[idx]:
+        q = snapshot.get(code)
+        if q:
+            # 国际惯例：涨用绿、跌用红
+            up = q.change_pct >= 0
+            chg_color = "#22c55e" if up else "#ef4444"
+            chg_sign = "+" if up else ""
+            st.markdown(f"""
+            <div class="market-pill">
+                <div style="color:#8fa0be;font-size:11px;font-weight:600;letter-spacing:.5px;">{label}</div>
+                <div style="color:#ffffff;font-size:18px;font-weight:700;margin-top:2px;">{q.price:.2f}</div>
+                <div style="color:{chg_color};font-size:12px;font-weight:700;margin-top:2px;">{chg_sign}{q.change_pct:.2f}%</div>
+                <div style="color:#4b5563;font-size:10px;">高 {q.high:.2f} · 低 {q.low:.2f}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+            <div class="market-pill">
+                <div style="color:#8fa0be;font-size:11px;font-weight:600;letter-spacing:.5px;">{label}</div>
+                <div style="color:#6b7280;font-size:14px;margin-top:8px;">行情接口离线</div>
+                <div style="color:#4b5563;font-size:10px;margin-top:4px;">（新浪直通不可达）</div>
+            </div>
+            """, unsafe_allow_html=True)
+# 宏观风险指数仪表盘
+with pi6:
+    if risk_index >= 60:
+        r_color = "#ef4444"; r_label = "集体避险"
+    elif risk_index >= 25:
+        r_color = "#f59e0b"; r_label = "中性博弈"
+    else:
+        r_color = "#10b981"; r_label = "低波动期"
+    st.markdown(f"""
+    <div class="market-pill" style="border-left:3px solid {r_color};">
+        <div style="color:#8fa0be;font-size:11px;font-weight:600;letter-spacing:.5px;">地缘避险指数</div>
+        <div style="color:{r_color};font-size:22px;font-weight:700;margin-top:2px;">{risk_index:.0f}<span style="font-size:12px;">/100</span></div>
+        <div style="color:{r_color};font-size:11px;font-weight:600;">{r_label}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("---")
 
 col1, col2, col3, col4, col5 = st.columns(5)
 
@@ -320,7 +427,34 @@ with tab1:
 
         card_class = f"event-card event-card-{domain_name.lower()}"
         affected_str = " | ".join([f"{k} ({'+' if v>0 else ''}{v:.2f})" for k, v in evt.affected_nodes.items()])
-        
+
+        # ---- 硬数据核验徽章 ----
+        tag = getattr(evt, "cross_check_tag", None)
+        if tag is None or tag == "不在核验范围":
+            badge_html = ""
+        elif "资金已证实" in tag:
+            badge_html = (
+                '<div class="verify-badge-substantiate">'
+                '🛡️ 金融大资本已核实验证 · 判定为真实战略级冲击'
+                f'（关联资产：金价 {snapshot.get("hf_GC").change_pct:+.2f}% · 油价 {snapshot.get("hf_OIL").change_pct:+.2f}%）'
+                '</div>'
+                if snapshot.get("hf_GC") and snapshot.get("hf_OIL") else
+                '<div class="verify-badge-substantiate">🛡️ 金融大资本已核实验证 · 判定为真实战略级冲击</div>'
+            )
+        elif "资金未响应" in tag:
+            badge_html = (
+                '<div class="verify-badge-noise">'
+                '💨 市场反应冷淡 · 判定为外交舆论战'
+                f'（大宗资产涨跌幅 < 0.4%，金价 {snapshot.get("hf_GC").change_pct:+.2f}% · 油价 {snapshot.get("hf_OIL").change_pct:+.2f}%）'
+                '</div>'
+                if snapshot.get("hf_GC") and snapshot.get("hf_OIL") else
+                '<div class="verify-badge-noise">💨 市场反应冷淡 · 判定为外交舆论战</div>'
+            )
+        elif "核验失败" in tag:
+            badge_html = '<div class="verify-badge-missing">⚠️ 行情接口离线 · 无法进行真实性核验</div>'
+        else:
+            badge_html = '<div class="verify-badge-noise">⚖️ 资金观望 · 烈度维持</div>'
+
         st.markdown(f"""
         <div class="{card_class}">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -335,6 +469,7 @@ with tab1:
             <div style="margin-top:8px; font-size:12px; color:#60a5fa;">
                 🔗 传导关联变量: <code>{affected_str}</code>
             </div>
+            {badge_html}
         </div>
         """, unsafe_allow_html=True)
 
