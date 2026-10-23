@@ -4,3 +4,12 @@ __pycache__/
 .venv/
 venv/
 .env
+
+# 运行时日志
+*.log
+
+# 外部工具产物与临时数据
+.ua/
+.ua-*/
+*understand-anything*
+data/patent_*.csv
