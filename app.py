@@ -21,6 +21,7 @@ from src.core.models import DomainCategory, ModalityType
 from src.collector.news_collector import DailyNewsCollector
 from src.causal_engine.causal_network import CausalNetwork
 from src.simulation.agent_sandbox import MultiAgentSandbox
+from src.simulation.llm_wargame import LLMClient, LLMWarGameEngine, PERSONAS
 from src.forecasting.scenario_engine import ScenarioForecastEngine
 
 # 页面基础配置
@@ -88,16 +89,31 @@ st.markdown("""
         padding: 8px 16px;
         border-radius: 6px;
     }
+    .debate-card {
+        background-color: #111827;
+        border: 1px solid #1f293d;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # 初始化 Session State
 if "collector" not in st.session_state:
     st.session_state.collector = DailyNewsCollector()
-    st.session_state.collector.fetch_daily_events(allow_online=True)
 
 if "causal_net" not in st.session_state:
     st.session_state.causal_net = CausalNetwork()
+    # 自动将今日真实捕获的高烈度事件注入因果网络初态
+    for evt in st.session_state.collector.collected_events[:10]:
+        for node_id, delta in evt.affected_nodes.items():
+            st.session_state.causal_net.apply_node_impulse(
+                node_id=node_id,
+                impulse=delta * 0.35,
+                reason=f"今日实时网络事件: {evt.title}"
+            )
+    st.session_state.causal_net.propagate_dynamics(steps=2)
 
 if "sandbox" not in st.session_state:
     st.session_state.sandbox = MultiAgentSandbox(st.session_state.causal_net)
@@ -112,15 +128,34 @@ if "scenario_engine" not in st.session_state:
 # ---------------- 侧边栏：操作控制与突发事件注入 ----------------
 with st.sidebar:
     st.markdown("### 🌐 全球趋势推演控制台")
-    st.caption("AI Compute & Energy Nexus 战略推演工程")
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    st.caption(f"当前推演基准自然日: **{today_str}**")
     st.markdown("---")
 
-    st.markdown("#### 📡 每日国际大事感知采集")
-    if st.button("🔄 刷新 / 抓取今日最新全球大事", use_container_width=True):
-        with st.spinner("正在扫描全球多模态情报源及国际快讯..."):
-            st.session_state.collector.fetch_daily_events(allow_online=True)
-            st.success("今日国际大事更新完毕！")
+    st.markdown("#### 📡 每日真实国际大事全网采集")
+    if st.button("🔄 立即全网重抓今日最新全球大事", use_container_width=True):
+        with st.spinner("正在直连全球各领域即时快讯源（政治/军事/财经/科技/能源）..."):
+            events = st.session_state.collector.fetch_daily_events()
+            # 重新校准因果网络
+            for evt in events[:12]:
+                for node_id, delta in evt.affected_nodes.items():
+                    st.session_state.causal_net.apply_node_impulse(
+                        node_id=node_id,
+                        impulse=delta * 0.3,
+                        reason=f"新拉取实时事件: {evt.title}"
+                    )
+            st.session_state.causal_net.propagate_dynamics(steps=2)
+            st.session_state.sandbox.run_turn(round_num=1)
+            st.success(f"全网最新大事件抓取完成！共捕获 {len(events)} 条真实动态。")
             st.rerun()
+
+    # 历史档案回溯
+    archive_dir = "data/daily_archive"
+    if os.path.exists(archive_dir):
+        archive_files = sorted([f for f in os.listdir(archive_dir) if f.endswith(".json")], reverse=True)
+        if len(archive_files) > 1:
+            st.markdown("#### 📅 历史推演日档案回溯")
+            selected_date = st.selectbox("切换历史日期观察大势：", archive_files)
 
     st.markdown("---")
     st.markdown("#### ⚡ 突发黑天鹅 / What-If 模拟器")
@@ -172,6 +207,25 @@ with st.sidebar:
             st.session_state.sandbox.run_turn(round_num=2)
             st.toast("⚡ 突发事件已注入！因果网络与多主体博弈已完成重算！")
             st.rerun()
+
+    st.markdown("---")
+    with st.expander("🤖 大模型认知大脑设置", expanded=False):
+        st.caption("配置后圆桌对抗由真实 LLM 驱动；留空 Key 自动启用本地高保真参谋模板")
+        llm_key = st.text_input("API Key", type="password", placeholder="sk-...（留空 = 本地模板模式）")
+        llm_base = st.text_input("Base URL", value="https://api.deepseek.com/v1")
+        llm_model = st.text_input("Model Name", value="deepseek-chat")
+        st.session_state.llm_config = {"api_key": llm_key, "base_url": llm_base, "model_name": llm_model}
+        if st.button("🔌 测试连接", use_container_width=True):
+            if not llm_key:
+                st.warning("● 未配置 Key · 本地参谋模板模式（三轮对抗功能完整可用）")
+            else:
+                with st.spinner("正在探测大模型端点..."):
+                    try:
+                        probe = LLMClient(api_key=llm_key, base_url=llm_base, model_name=llm_model, timeout=10)
+                        probe.chat("你是连通性探针", "只回复: ok", max_tokens=5)
+                        st.success("● 连接正常 · LIVE LLM 在线推演已就绪")
+                    except Exception as e:
+                        st.error(f"● 连接失败，推演时将自动降级本地模板：{str(e)[:120]}")
 
     st.markdown("---")
     st.caption("系统运行基准时间: 2026年10月 · GTPS v1.0")
@@ -238,7 +292,7 @@ with col5:
 tab1, tab2, tab3, tab4 = st.tabs([
     "📰 今日国际大事信息流 (Live Feed)",
     "🧠 跨域因果网络与动态推演沙盘",
-    "♟️ 多主体博弈自主决策 (Multi-Agent)",
+    "🏛️ 虚拟战略闭门峰会 · 红蓝对抗圆桌",
     "🔮 未来情景树概率推演与战略预警 (Forecast)"
 ])
 
@@ -249,7 +303,14 @@ with tab1:
 
     filter_domain = st.selectbox(
         "按领域筛选：",
-        ["全部领域", "ENERGY (能源资源)", "TECHNOLOGY (科技算力)", "POLITICS (地缘政治)", "ECONOMY (宏观经济)"]
+        [
+            "全部领域",
+            "POLITICS (政治地缘与防务)",
+            "ECONOMY (宏观经济与金融)",
+            "TECHNOLOGY (前沿科技与AI)",
+            "ENERGY (能源资源与生态)",
+            "SOCIETY (社会文化与思潮)"
+        ]
     )
 
     for evt in events:
@@ -317,48 +378,129 @@ with tab2:
             st.rerun()
 
 
-# ---------------- TAB 3: 多主体博弈沙盒 ----------------
+# ---------------- TAB 3: 虚拟战略闭门峰会 · 红蓝对抗圆桌 ----------------
 with tab3:
-    st.markdown("#### ♟️ 多主体博弈自主决策记录与压力测试")
-    st.caption("真实社会演进由相互博弈的异构主体（资本、公用事业、监管、公众）驱动")
+    st.markdown("#### 🏛️ 虚拟战略闭门峰会 · 红蓝对抗圆桌")
+    st.caption("四大利益集团参谋部围绕今日真实国际议题，展开立场宣告 → 针锋相对驳斥 → 闭门博弈妥协的三轮对抗")
 
-    agents = st.session_state.sandbox.agents
-    c1, c2 = st.columns(2)
+    # 阵营视觉识别系统（紫 / 琥珀 / 正红 / 蓝绿）
+    FACTION_STYLE = {
+        "TECH_HYPERSCALER": ("#8b5cf6", "科技资本巨头"),
+        "GRID_GUARDIAN": ("#f59e0b", "区域电网守门人"),
+        "STATE_REGULATOR": ("#ef4444", "地方监管政府"),
+        "GLOBAL_ARBITRAGEUR": ("#14b8a6", "地缘套利招商团"),
+    }
 
-    for idx, (aid, ag) in enumerate(agents.items()):
-        col = c1 if idx % 2 == 0 else c2
-        with col:
-            st.markdown(f"""
-            <div class="metric-card">
-                <div style="display:flex; justify-content:space-between;">
-                    <div style="font-weight:700; color:#60a5fa; font-size:16px;">{ag.name}</div>
-                    <span class="badge" style="background:#374151; color:#e5e7eb;">{ag.role_type}</span>
-                </div>
-                <div style="font-size:13px; color:#d1d5db; margin:8px 0;"><b>战略立场：</b>{ag.current_stance}</div>
-                <div style="font-size:12px; color:#9ca3af;">
-                    <b>核心利益目标：</b>
-                    <ul style="margin: 4px 0 0 16px; padding:0;">
-                        {''.join([f"<li>{o}</li>" for o in ag.objectives])}
-                    </ul>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+    # ---- 顶部操作栏：议题选择 + 启动 ----
+    op1, op2 = st.columns([3, 1])
+    with op1:
+        evt_options = {e.title: e for e in events}
+        chosen_title = st.selectbox("🎯 选择圆桌对抗议题（源自今日捕获的真实国际要闻）：", list(evt_options.keys()))
+        chosen_evt = evt_options[chosen_title]
+        st.caption(f"议题背景：{chosen_evt.summary}")
+    with op2:
+        st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True)
+        launch = st.button("⚔️ 启动闭门圆桌对抗推演", use_container_width=True, type="primary")
 
-    st.markdown("##### 最新一轮沙盒博弈自主反制行动")
-    decisions = st.session_state.sandbox.decision_history
-    if decisions:
-        dec_list = []
-        for d in reversed(decisions[-6:]):
-            dec_list.append({
-                "主体 (Agent)": agents[d.agent_id].name if d.agent_id in agents else d.agent_id,
-                "战略决策行动": d.action_name,
-                "干预变量": nodes[d.target_node_id].name if d.target_node_id in nodes else d.target_node_id,
-                "干预强度": f"{'+' if d.intervention_strength>0 else ''}{d.intervention_strength:.2f}",
-                "决策逻辑与战略动机": d.explanation
-            })
-        st.table(pd.DataFrame(dec_list))
+    if launch:
+        cfg = st.session_state.get("llm_config", {})
+        engine = LLMWarGameEngine(LLMClient(
+            api_key=cfg.get("api_key") or None,
+            base_url=cfg.get("base_url") or "https://api.deepseek.com/v1",
+            model_name=cfg.get("model_name") or "deepseek-chat",
+            timeout=45,
+        ))
+        with st.status("🏛️ 闭门圆桌对抗推演进行中...", expanded=True) as status:
+            result = engine.run_wargame_session(
+                chosen_evt.title, chosen_evt.summary,
+                progress_cb=lambda msg: st.write(f"✅ {msg}")
+            )
+            # 量化战术冲击回填因果网络 → 顶部 KPI 与 Tab 4 情景树即时重校准
+            engine.apply_to_network(st.session_state.causal_net, result.decisions)
+            status.update(label="🏛️ 推演完成：战术冲击已回填因果网络，情景树已重新校准！", state="complete")
+        st.session_state.wargame_result = result
+        st.toast("⚔️ 红蓝对抗决议已生效，全局概率情景完成重算！")
+        st.rerun()
+
+    # ---- 辩论实况流 + 终局内参展板 ----
+    result = st.session_state.get("wargame_result")
+    if result:
+        mode_badge = (
+            '<span class="badge" style="background:#065f46;color:#a7f3d0;">● 真实大模型在线驱动</span>'
+            if result.mode == "LIVE_LLM" else
+            '<span class="badge" style="background:#374151;color:#d1d5db;">● 本地高保真参谋模板</span>'
+        )
+        st.markdown(f"**当前对抗议题：{result.event_title}** &nbsp; {mode_badge}", unsafe_allow_html=True)
+
+        def render_round(title, icon, statements):
+            st.markdown(f"##### {icon} {title}")
+            for pid, text in statements.items():
+                color, short = FACTION_STYLE[pid]
+                st.markdown(f"""
+                <div class="debate-card" style="border-left:4px solid {color};">
+                    <div style="color:{color}; font-weight:700; font-size:13px; margin-bottom:4px;">
+                        {short} · {PERSONAS[pid]['name']}
+                    </div>
+                    <div style="color:#e5e7eb; font-size:14px; line-height:1.6;">{text}</div>
+                </div>""", unsafe_allow_html=True)
+
+        render_round("第一轮 · 危机态势研判与立场宣告", "🎙️", result.opening_statements)
+        render_round("第二轮 · 交叉辩论与反制施压", "⚔️", result.cross_debate)
+        render_round("第三轮 · 闭门博弈妥协决议", "🤝", result.resolutions)
+
+        st.markdown("---")
+        st.markdown("##### 📁 终局决议内参展板（高管战略内参）")
+        dec_rows = [{
+            "博弈阵营": FACTION_STYLE[d.agent_id][1],
+            "实质反制手段": d.action_name,
+            "冲击因果变量": d.target_node_id,
+            "冲击强度": f"{d.intervention_strength:+.2f}",
+        } for d in result.decisions]
+        st.table(pd.DataFrame(dec_rows))
+        st.success("✅ 上述量化冲击已自动回填核心因果网络；顶部 KPI 与 Tab 4 情景树概率已即时重新校准。")
+
+        with st.expander("展开《战略闭门圆桌博弈纪要与内参决议》全文", expanded=False):
+            st.markdown(result.briefing)
     else:
-        st.write("暂无历史博弈记录，可点击侧边栏注入事件触发博弈。")
+        st.info("尚未开启圆桌对抗。请在上方选择今日真实议题，点击「⚔️ 启动闭门圆桌对抗推演」。无 API Key 亦可完整体验（本地高保真参谋模板）。")
+
+    # ---- 附录：传统规则引擎沙盒（保留快速压力测试能力） ----
+    with st.expander("⚙️ 附：规则引擎四主体档案与自主反制记录（传统沙盒）", expanded=False):
+        agents = st.session_state.sandbox.agents
+        c1, c2 = st.columns(2)
+        for idx, (aid, ag) in enumerate(agents.items()):
+            col = c1 if idx % 2 == 0 else c2
+            with col:
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div style="display:flex; justify-content:space-between;">
+                        <div style="font-weight:700; color:#60a5fa; font-size:16px;">{ag.name}</div>
+                        <span class="badge" style="background:#374151; color:#e5e7eb;">{ag.role_type}</span>
+                    </div>
+                    <div style="font-size:13px; color:#d1d5db; margin:8px 0;"><b>战略立场：</b>{ag.current_stance}</div>
+                    <div style="font-size:12px; color:#9ca3af;">
+                        <b>核心利益目标：</b>
+                        <ul style="margin: 4px 0 0 16px; padding:0;">
+                            {''.join([f"<li>{o}</li>" for o in ag.objectives])}
+                        </ul>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        decisions = st.session_state.sandbox.decision_history
+        if decisions:
+            dec_list = []
+            for d in reversed(decisions[-6:]):
+                dec_list.append({
+                    "主体 (Agent)": agents[d.agent_id].name if d.agent_id in agents else d.agent_id,
+                    "战略决策行动": d.action_name,
+                    "干预变量": nodes[d.target_node_id].name if d.target_node_id in nodes else d.target_node_id,
+                    "干预强度": f"{'+' if d.intervention_strength>0 else ''}{d.intervention_strength:.2f}",
+                    "决策逻辑与战略动机": d.explanation
+                })
+            st.table(pd.DataFrame(dec_list))
+        else:
+            st.write("暂无历史博弈记录，可点击侧边栏注入事件触发博弈。")
 
 
 # ---------------- TAB 4: 情景树与战略预警 ----------------

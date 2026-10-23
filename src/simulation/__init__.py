@@ -5,5 +5,6 @@
 观测涌现行为与资源博弈均衡（如算力-电力-政策三方博弈）。
 """
 from .agent_sandbox import MultiAgentSandbox
+from .llm_wargame import LLMClient, LLMWarGameEngine, WarGameResult
 
-__all__ = ["MultiAgentSandbox"]
+__all__ = ["MultiAgentSandbox", "LLMClient", "LLMWarGameEngine", "WarGameResult"]

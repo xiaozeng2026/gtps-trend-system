@@ -1,0 +1,430 @@
+{
+  "date": "2026-10-22",
+  "updated_at": "2026-10-22T13:08:05.441433",
+  "total_events": 31,
+  "channel_stats": {
+    "新浪国际时事": 14,
+    "新浪军事防务": 10,
+    "全球财经与宏观市场": 6,
+    "前沿科技与颠覆创新": 1
+  },
+  "events": [
+    {
+      "event_id": "LIVE_20261022130804_5085",
+      "title": "巴西禽类疫情扰乱供应 泰国卜蜂食品鸡肉订单增加",
+      "summary": "全球最大鸡肉出口国巴西暴发禽类疫情、供应受到扰乱后，泰国最大肉类生产商卜蜂食品的禽肉产品需求有所增加。卜蜂食品首席执行官Prasit Boondoungprasert周四对记者表示...",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.53,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-22 13:07",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-22/doc-iniwamir5974361.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_5954",
+      "title": "印尼发布基准指数成分股剔除规则指引",
+      "summary": "印尼证券交易所公告称，雅加达综合指数的评估标准将修订，新规自11月2日起生效。 加速板上市股票以及被划为股权高度集中类别的股票将不再纳入该指数。",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.53,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-22 13:06",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-22/doc-iniwamip5242464.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_6578",
+      "title": "欧洲9月汽车销量同比增长10.2%，电动化车型占比达76.2%",
+      "summary": "欧洲汽车制造商协会（ACEA）周四发布的数据显示，9月份欧洲新车市场实现增长，得益于电动汽车的强劲需求，抵消了汽油车和柴油车销量的再次大幅下滑。",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.53,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-22 13:02",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-22/doc-iniwamiu4909418.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_3137",
+      "title": "摩根大通上调IBM目标价",
+      "summary": "摩根大通将IBM目标价从250美元上调至269美元。 消息面，IBM第三季度营收增长4.7%至171亿美元，高于分析师平均预期的168.2亿美元。",
+      "source": "新浪国际时事",
+      "domain": "economy",
+      "impact_level": 0.64,
+      "affected_nodes": {
+        "POWER_WHOLESALE_PRICE": 0.15
+      },
+      "timestamp": "2026-10-22 12:57",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-22/doc-iniwamir5967577.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_7510",
+      "title": "嘉立创A股上市73天后筹划港股挂牌：账面资金或超80亿元有息负债寥寥 已有57亿元投资计划 PCB产能利用率77%",
+      "summary": "核心观点：8月4日，嘉立创刚在A股IPO。73天后的10月16日，公司就筹划在港股上市。时间间隔短是一个争议，更大的问题是公司账面“不差钱”。",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.53,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-22 12:56",
+      "url": "https://finance.sina.com.cn/stock/observe/2026-10-22/doc-iniwamis8132330.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_8850",
+      "title": "名创优品于10月21日斥资24.44万美元回购9.91万股",
+      "summary": "名创优品（09896）发布公告，于2026年10月21日斥资24.44万美元回购9.91万股。",
+      "source": "新浪国际时事",
+      "domain": "economy",
+      "impact_level": 0.64,
+      "affected_nodes": {
+        "POWER_WHOLESALE_PRICE": 0.15
+      },
+      "timestamp": "2026-10-22 12:50",
+      "url": "https://finance.sina.com.cn/stock/hkstock/ggscyd/2026-10-22/doc-iniwamip5230691.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_91",
+      "title": "中通快递-W于10月21日斥资397.21万美元回购19.96万股",
+      "summary": "中通快递-W（02057）发布公告，于2026年10月21日斥资397.21万美元回购19.96万股。",
+      "source": "新浪国际时事",
+      "domain": "economy",
+      "impact_level": 0.64,
+      "affected_nodes": {
+        "POWER_WHOLESALE_PRICE": 0.15
+      },
+      "timestamp": "2026-10-22 12:49",
+      "url": "https://finance.sina.com.cn/stock/hkstock/ggscyd/2026-10-22/doc-iniwamis8126804.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_3168",
+      "title": "荣丰集团亚洲公布于10月22日上午起停牌 待刊发内幕消息",
+      "summary": "荣丰集团亚洲（08526）发布公告，应公司要求，公司股份将由2026年10月22日（星期四）上午九时正起于香港联合交易所有限公司GEM暂停买卖...",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.53,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-22 12:48",
+      "url": "https://finance.sina.com.cn/stock/hkstock/ggscyd/2026-10-22/doc-iniwamir5960463.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_7491",
+      "title": "伊朗伊斯兰革命卫队称打击了4艘“违规”油轮",
+      "summary": "据Press TV在X发文指出，伊朗伊斯兰革命卫队称，在波斯湾北部有四艘“违规”油轮进行石油货物转运时遭到袭击。伊朗伊斯兰革命卫队没有具体说明袭击的日期。",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.69,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.18,
+        "LOCAL_COMMUNITY_RESISTANCE": 0.1
+      },
+      "timestamp": "2026-10-22 12:45",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-22/doc-iniwamiu4895609.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_9925",
+      "title": "交银国际：爱芯元智目标价上调至37港元 维持“买入”评级",
+      "summary": "交银国际发布研报称，上调爱芯元智（00600）目标价至37港元，维持“买入”评级。该行表示，考虑到端侧AI新产品AX8860可能进一步推动整体收入增长...",
+      "source": "新浪国际时事",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-22 12:45",
+      "url": "https://finance.sina.com.cn/stock/hkstock/hkgg/2026-10-22/doc-iniwamis8122789.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_5918",
+      "title": "摩根大通等机构经济学家预计新西兰央行今年将再加息两次",
+      "summary": "凯投宏观、摩根大通和西太平洋银行目前预计，新西兰央行将在今年剩余的两次会议上分别进行幅度25个基点的加息，使基准利率在年底达到3.25%。",
+      "source": "新浪国际时事",
+      "domain": "economy",
+      "impact_level": 0.64,
+      "affected_nodes": {
+        "POWER_WHOLESALE_PRICE": 0.15
+      },
+      "timestamp": "2026-10-22 12:42",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-22/doc-iniwamir5956032.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_9843",
+      "title": "花旗：对中金公司开设30日正面催化剂观察 料第三季净利润升120%至150%",
+      "summary": "花旗发布研报称，中金公司（03908）第三季业绩强劲，对其港股开设30日正面催化剂观察，预计第三季盈利约50亿至55亿元人民币，同比增长约120%至150%...",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.53,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-22 12:41",
+      "url": "https://finance.sina.com.cn/stock/hkstock/hkgg/2026-10-22/doc-iniwamiu4891008.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_566",
+      "title": "瑞银：澳门博彩收入在黄金周后回落 首选金沙中国及美高梅中国",
+      "summary": "瑞银发布研报称，根据该行渠道调查，由昨日起，过去八日日均总博彩收入（GGR）约6.13亿澳门元，低于前七日的日均约7.29亿澳门元；该行偏好金沙中国（01928）及美高梅中国（...",
+      "source": "新浪国际时事",
+      "domain": "economy",
+      "impact_level": 0.64,
+      "affected_nodes": {
+        "POWER_WHOLESALE_PRICE": 0.15
+      },
+      "timestamp": "2026-10-22 12:41",
+      "url": "https://finance.sina.com.cn/stock/hkstock/hkgg/2026-10-22/doc-iniwamiu4890965.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_3193",
+      "title": "招银国际：信达生物目标价上调至138.63港元 维持“买入”评级",
+      "summary": "招银国际发布研报称，信达生物（01801）在IMS 2026上公布IBI3003用于102例复发或难治性多发性骨髓瘤（MM）患者的I期临床数据。IBI3003是一款靶向BCMA×GPRC5D×CD3的三特异性...",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.53,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-22 12:40",
+      "url": "https://finance.sina.com.cn/stock/hkstock/hkgg/2026-10-22/doc-iniwamis8118364.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_8500",
+      "title": "王腾旗下今日宜休布局智能温控领域新赛道",
+      "summary": "新浪科技讯 10月22日中午消息，今日，王腾创办的AI睡眠科技品牌今日宜休正式公布第二款产品iFlow智能温控系统，主打整夜动态温度管理等功能...",
+      "source": "新浪军事防务",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-22 11:54",
+      "url": "https://finance.sina.com.cn/roll/2026-10-22/doc-iniwamir5909424.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_9443",
+      "title": "火山引擎启动Seedance 2.5 4K企业试用 第一批定向供应 20 家工作室",
+      "summary": "新浪科技讯 10月22日上午消息，近日，火山引擎启动了Seedance 2.5 4K模型的第一批企业用户试用，与作品绑定、定向供应给全球20家工作室和导演Seedance 2.5 4K 模型...",
+      "source": "新浪军事防务",
+      "domain": "politics",
+      "impact_level": 0.53,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-22 11:49",
+      "url": "https://finance.sina.com.cn/roll/2026-10-22/doc-iniwamir5904634.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_4695",
+      "title": "宇树科技王兴兴：宇树G1机器人已经累计生产下线约1-2万台",
+      "summary": "新浪科技讯 10月22日中午消息，在2026世界物理AI大会暨宇树合作伙伴生态大会上，宇树科技创始人王兴兴表示，自2024年5月发布以来...",
+      "source": "新浪军事防务",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-22 11:40",
+      "url": "https://finance.sina.com.cn/roll/2026-10-22/doc-iniwamis8046402.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_9789",
+      "title": "打通论文发布与社区讨论链路 知乎推出“Paper开源计划”",
+      "summary": "新浪科技讯 10月22日上午消息，作为2026知乎科学季的重要一环，知乎近期推出“Paper开源计划”，通过AI应用打通知乎社区与论文网站全链路，提供一键看论文讨论...",
+      "source": "新浪军事防务",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-22 11:40",
+      "url": "https://finance.sina.com.cn/roll/2026-10-22/doc-iniwamip5163970.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_5588",
+      "title": "对话谢瑞麟珠宝谢达峰：行业集体“向左走”，我们选择“向右走”",
+      "summary": "2026可持续全球领导者大会于10月20日至22日在上海黄浦世博园区举办。在黄金珠宝行业普遍面临同质化竞争的背景下，如何实现差异化？",
+      "source": "新浪军事防务",
+      "domain": "economy",
+      "impact_level": 0.64,
+      "affected_nodes": {
+        "POWER_WHOLESALE_PRICE": 0.15
+      },
+      "timestamp": "2026-10-22 10:01",
+      "url": "https://finance.sina.com.cn/roll/2026-10-22/doc-iniwaezr5203258.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_8351",
+      "title": "无界动力发布并开源 MWA™-Phoenix 隐空间世界模型基座",
+      "summary": "新浪科技讯 10月22日上午消息，近日，无界动力正式发布并开源 MWA™-Phoenix 隐空间世界模型基座，横扫LIBERO-Plus、LIBERO-Pro、RoboCasa GR1、Bench2Dex、RoboTwin 2...",
+      "source": "新浪军事防务",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-22 09:48",
+      "url": "https://finance.sina.com.cn/roll/2026-10-22/doc-iniwaezr5192315.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_1372",
+      "title": "拓展协同边界 陪伴科技企业成长",
+      "summary": "图①汉源微电子纯锡球材料 图②广电运通展示的多款智慧网点终端 图③杰创智能AI巡防网捕机器狗杨洁/摄 本报记者杨洁 从电子封装的关键材料，到AI（人工智能）算力设施...",
+      "source": "新浪军事防务",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-22 06:13",
+      "url": "https://finance.sina.com.cn/jjxw/2026-10-22/doc-inivzuna4833457.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_8316",
+      "title": "Meta Q3营收超预期并宣布1拆2股票分割，上调资本支出加码AI",
+      "summary": "Meta 周三收盘后发布第三季度财报，拉开大型科技公司财报季序幕。公司营收超出预期，但因与青少年心理健康和解相关的法律费用，GAAP每股收益受到拖累。",
+      "source": "新浪军事防务",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-22 04:10",
+      "url": "https://finance.sina.com.cn/world/2026-10-22/doc-inivzumx5957190.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_4990",
+      "title": "院线将迎“新面孔” 首部AI电影直面市场检验",
+      "summary": "证券时报记者 吴志 电影院即将迎来一个“新面孔”。10月23日，电影《三星堆：未来往事》将在全国影院上映，这是国内首部利用AI技术制作并获得国家电影局公映许可证的院线电影...",
+      "source": "新浪军事防务",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-22 01:10",
+      "url": "https://finance.sina.com.cn/jjxw/2026-10-22/doc-inivziwc6084140.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130804_3727",
+      "title": "SpaceX 盘中暴涨 11% 市值超台积电：与特斯拉合并传闻 + 超预期业绩",
+      "summary": "IT之家 10 月 21 日消息，今晚美股开盘后，SpaceX 股价上涨 11.18%，报 164.308 美元 / 股，总市值报 2.23 万亿美元（IT之家注：现汇率约合 14.92 万亿元人民币）...",
+      "source": "新浪军事防务",
+      "domain": "economy",
+      "impact_level": 0.64,
+      "affected_nodes": {
+        "POWER_WHOLESALE_PRICE": 0.15
+      },
+      "timestamp": "2026-10-21 22:19",
+      "url": "https://finance.sina.com.cn/tech/digi/2026-10-21/doc-inivzcqf6114442.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130805_3047",
+      "title": "马斯克欲赶在特朗普卸任前敲定特斯拉与SpaceX合并事宜",
+      "summary": "埃隆·马斯克终于把那句一直没公开说的话挑明了：他全力支持将旗下两家最值钱的公司SpaceX和特斯拉公司合并。这将成为有史以来规模最大的企业交易。",
+      "source": "全球财经与宏观市场",
+      "domain": "economy",
+      "impact_level": 0.53,
+      "affected_nodes": {
+        "POWER_WHOLESALE_PRICE": 0.08
+      },
+      "timestamp": "2026-10-22 12:36",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-22/doc-iniwamiu4886178.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130805_7317",
+      "title": "新墨西哥州诉讼获胜 Meta被判支付250亿美元罚款",
+      "summary": "新墨西哥州总检察长Raúl Torrez本周在针对Meta Platforms Inc．的诉讼中取得一场具有里程碑意义的胜利。 法官周三裁定Meta支付250亿美元民事罚款。",
+      "source": "全球财经与宏观市场",
+      "domain": "economy",
+      "impact_level": 0.64,
+      "affected_nodes": {
+        "POWER_WHOLESALE_PRICE": 0.15
+      },
+      "timestamp": "2026-10-22 12:26",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-22/doc-iniwamir5942634.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130805_3311",
+      "title": "史上最强厄尔尼诺或成定局 基金经理称全球将没有可以“避风”之处",
+      "summary": "史上最强厄尔尼诺或将形成，促使越来越多资金管理人加紧调整投资组合，以应对他们声称的即将到来的冲击。 与赤道太平洋海水升温有关的厄尔尼诺现象...",
+      "source": "全球财经与宏观市场",
+      "domain": "economy",
+      "impact_level": 0.53,
+      "affected_nodes": {
+        "POWER_WHOLESALE_PRICE": 0.08
+      },
+      "timestamp": "2026-10-22 12:21",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-22/doc-iniwamir5937157.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130805_7505",
+      "title": "美国长债收益率跌至一个月低点 AI交易疑虑再起推升避险需求",
+      "summary": "美国国债周四全在线涨，长债收益率降至一个月低点；市场再度质疑AI交易能否持续，促使投资人转向避险资产。 美国国债收益率至少下跌3个基点。",
+      "source": "全球财经与宏观市场",
+      "domain": "technology",
+      "impact_level": 0.86,
+      "affected_nodes": {
+        "POWER_WHOLESALE_PRICE": 0.15,
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-22 12:20",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-22/doc-iniwamir5935562.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130805_9154",
+      "title": "日本国债收益率触及数周低点，交易员权衡中东局势及央行政策前景",
+      "summary": "日本国债收益率周四跌至数周低点，市场交投清淡。交易员们在权衡地缘政治和通胀风险的同时，关注下周召开的日本央行会议。",
+      "source": "全球财经与宏观市场",
+      "domain": "economy",
+      "impact_level": 0.83,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.18,
+        "LOCAL_COMMUNITY_RESISTANCE": 0.1,
+        "POWER_WHOLESALE_PRICE": 0.15
+      },
+      "timestamp": "2026-10-22 12:17",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-22/doc-iniwamis8090756.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130805_6252",
+      "title": "特斯拉欧洲月度销量激增 比亚迪注册量激增近99%",
+      "summary": "据报道，特斯拉上月欧洲销量激增，显示埃隆·马斯克旗下这家电动汽车制造商在欧洲继续扩大市场影响力；中国竞争对手在这一地区也在强劲增长。",
+      "source": "全球财经与宏观市场",
+      "domain": "economy",
+      "impact_level": 0.53,
+      "affected_nodes": {
+        "POWER_WHOLESALE_PRICE": 0.08
+      },
+      "timestamp": "2026-10-22 12:08",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-22/doc-iniwamir5922348.shtml"
+    },
+    {
+      "event_id": "LIVE_20261022130805_4850",
+      "title": "瑞银：受广告疲弱与AI成本拖累 百度短期利润率承压 降目标价13%",
+      "summary": "文/新浪财经香港站 王柳潞 瑞银发研究报告表示，百度（9888.HK）第三季AI相关业务表现稳健，有望推动核心业务收入实现按年微幅增长。",
+      "source": "前沿科技与颠覆创新",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-22 13:02",
+      "url": "https://finance.sina.com.cn/stock/hkstock/hkyx/2026-10-22/doc-iniwamir5971060.shtml"
+    }
+  ]
+}
