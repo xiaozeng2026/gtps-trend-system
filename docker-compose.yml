@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  gtps-app:
+    build: .
+    container_name: gtps-trend-system
+    restart: always
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+      - ./config/themes:/app/config/themes
+    environment:
+      - PYTHONUTF8=1
+      - TZ=Asia/Shanghai
