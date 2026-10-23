@@ -5,5 +5,7 @@
 输出符合 core 契约的原始事件流，供 ingestion 层消费。
 """
 from .news_collector import DailyNewsCollector, GlobalEvent
+from .market_data import MarketDataCollector, MarketQuote, CrossCheckFilter
 
-__all__ = ["DailyNewsCollector", "GlobalEvent"]
+__all__ = ["DailyNewsCollector", "GlobalEvent",
+           "MarketDataCollector", "MarketQuote", "CrossCheckFilter"]

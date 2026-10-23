@@ -1,0 +1,509 @@
+{
+  "date": "2026-10-23",
+  "updated_at": "2026-10-23T15:41:47.017313",
+  "total_events": 32,
+  "channel_stats": {
+    "新浪国际时事": 15,
+    "新浪军事防务": 10,
+    "全球财经与宏观市场": 4,
+    "前沿科技与颠覆创新": 3
+  },
+  "events": [
+    {
+      "event_id": "LIVE_20261023154146_8621",
+      "title": "财政部：将抓紧做好提前下达2027年部分新增地方政府债务有关工作",
+      "summary": "人民财讯10月23日电，10月23日，财政部债务管理司副司长赵则永在财政部新闻发布会上表示，近年来根据全国人大常委会授权，经国务院同意...",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.45,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-23 15:38",
+      "url": "https://finance.sina.com.cn/jjxw/2026-10-23/doc-iniweywu2665368.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_1309",
+      "title": "美国最大公务员退休基金减持科技巨头 总仓位下降26%",
+      "summary": "规模达6400亿美元的加州大型养老基金正在减持美国大型科技企业，同时提高私募股权配置比例。这一举措凸显市场担忧：助推华尔街屡创历史新高的人工智能行情动能正在消退。",
+      "source": "新浪国际时事",
+      "domain": "economy",
+      "impact_level": 0.64,
+      "affected_nodes": {
+        "POWER_WHOLESALE_PRICE": 0.15
+      },
+      "timestamp": "2026-10-23 15:32",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-23/doc-iniweyws1928576.shtml",
+      "cross_check_tag": null,
+      "cross_check_confidence": 0.0
+    },
+    {
+      "event_id": "LIVE_20261023154146_3014",
+      "title": "Counterpoint：2026年Q3全球PC出货量同比下滑21%，预计Q4同比降幅达27%",
+      "summary": "Counterpoint Research初步数据显示，2026年第三季度全球PC出货量同比下降21%，至5700万台；环比下滑13.8%。内存及其他元器件涨价推高整机售价，抑制了市场需求。",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.45,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-23 15:28",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-23/doc-iniweywn8160959.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_8799",
+      "title": "Uber将ChatGPT Work推广至全部3万名员工",
+      "summary": "Uber与OpenAI周四宣布扩大合作伙伴关系。这家网约车巨头向TechCrunch表示，旗下全球约3万名员工将全面使用ChatGPT Work。",
+      "source": "新浪国际时事",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-23 15:24",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-23/doc-iniweywq4928823.shtml",
+      "cross_check_tag": null,
+      "cross_check_confidence": 0.0
+    },
+    {
+      "event_id": "LIVE_20261023154146_2388",
+      "title": "美财政部提议将生物技术列入对外投资禁止清单，外交部：将密切关注有关动向",
+      "summary": "10月23日，外交部发言人毛宁主持例行记者会。路透社记者提问，美国财政部提议将生物技术列入美国对外投资安全计划的禁止投资清单...",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.517,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.18,
+        "LOCAL_COMMUNITY_RESISTANCE": 0.1
+      },
+      "timestamp": "2026-10-23 15:17",
+      "url": "https://finance.sina.com.cn/jjxw/2026-10-23/doc-iniweywu2649130.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_3513",
+      "title": "Canva发布首款自主研发的图像生成模型",
+      "summary": "设计平台Canva发布了首款由其研究团队自主研发的图像生成模型Canva Craft，旨在与谷歌、OpenAI和Meta等公司的同类模型展开竞争。",
+      "source": "新浪国际时事",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-23 15:15",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-23/doc-iniweywn8143591.shtml",
+      "cross_check_tag": null,
+      "cross_check_confidence": 0.0
+    },
+    {
+      "event_id": "LIVE_20261023154146_8662",
+      "title": "【市场聚焦】PVC：减产托底 内需约束",
+      "summary": "来源：中粮期货研究中心 概要 本周PVC期现货低位偏强震荡，期货博弈减产预期，现货跟涨偏弱，终端多按需小单采购。行业亏损带动检修增加、开工回落，库存被动缓去...",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.45,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-23 15:11",
+      "url": "https://finance.sina.com.cn/money/future/fmnews/2026-10-23/doc-iniweywq4931290.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_3267",
+      "title": "美国汽油价格居高不下 中期选举前将维持高位",
+      "summary": "高油价持续加重美国民众经济负担，在11月初中期选举来临前，选民将生活负担能力列为首要关切问题。 美国汽车协会（AAA）的数据显示，全美汽油均价为每加仑4...",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.45,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-23 15:10",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-23/doc-iniweyws1912184.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_5165",
+      "title": "随着决策模型竞争升温 OpenAI向所有用户开放Jev竞品",
+      "summary": "OpenAI首次向用户全面开放其Decisions API模型，正式进军快速、低成本人工智能决策市场。近期，由一名前沿人工智能实验室研究员创立的初创公司TypeSafe...",
+      "source": "新浪国际时事",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-23 15:10",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-23/doc-iniweywn8137221.shtml",
+      "cross_check_tag": null,
+      "cross_check_confidence": 0.0
+    },
+    {
+      "event_id": "LIVE_20261023154146_8255",
+      "title": "外交部：中方坚定支持联合国在国际事务中发挥核心作用",
+      "summary": "10月23日，外交部发言人毛宁主持例行记者会。总台央视记者提问：10月25日是新中国恢复联合国合法席位55周年纪念日，中方如何评价55年来的历程...",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.517,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.18,
+        "LOCAL_COMMUNITY_RESISTANCE": 0.1
+      },
+      "timestamp": "2026-10-23 15:10",
+      "url": "https://finance.sina.com.cn/jjxw/2026-10-23/doc-iniweywu2650968.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_836",
+      "title": "外交部：中德全方位战略伙伴关系健康稳定发展 符合双方利益",
+      "summary": "10月23日，外交部发言人毛宁主持例行记者会。有记者问：发言人刚刚发布了施泰因迈尔总统将访华的消息，能否介绍此访有关安排，中方如何评价当前中德关系...",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.517,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.18,
+        "LOCAL_COMMUNITY_RESISTANCE": 0.1
+      },
+      "timestamp": "2026-10-23 15:10",
+      "url": "https://finance.sina.com.cn/china/2026-10-23/doc-iniweywn8139007.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_8842",
+      "title": "SK海力士：会长给出“持有”建议三个月后，散户亏损比例达74%",
+      "summary": "大约三个月前，SK集团会长崔泰源对SK海力士股票给出了“持有”的建议。但该股当前价格依旧较高点回落近60%。不少在高位附近入场的散户深度套牢，陷入既不敢割肉...",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.45,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-23 15:09",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-23/doc-iniweyws1911359.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_2741",
+      "title": "财政部：前三季度证券交易印花税2391亿元 同比增长65.1%",
+      "summary": "2026年前三季度财政收支情况 一、全国一般公共预算收支情况 （一）一般公共预算收入情况。 前三季度，全国一般公共预算收入172292亿元，同比增长5.1%。",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.45,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-23 15:09",
+      "url": "https://finance.sina.com.cn/china/2026-10-23/doc-iniweywn8137051.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_144",
+      "title": "前三季度全国财政收入同比增长5.1%",
+      "summary": "原标题：新华社权威快报|前三季度全国财政收入同比增长5.1% 财政收支是反映经济运行情况的“晴雨表”。财政部10月23日发布数据显示，今年前三季度，财政收入平稳增长...",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.45,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-23 15:07",
+      "url": "https://finance.sina.com.cn/china/2026-10-23/doc-iniweywu2641650.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_2973",
+      "title": "莫德纳癌症疫苗试验数据在社交媒体流出 股价暴跌近18%",
+      "summary": "这项受到严格保密的研究原定于周六在一场医学会议上公布详细结果。 莫德纳（Moderna）股价暴跌。此前，一项受到严格保密的mRNA癌症疫苗研究的部分数据在社交媒体上流传...",
+      "source": "新浪国际时事",
+      "domain": "politics",
+      "impact_level": 0.45,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-23 15:03",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-23/doc-iniweywq4898908.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_8990",
+      "title": "iQOO与Unreal Engine开展合作，探索降低高品质光追落地门槛",
+      "summary": "新浪科技讯 10月23日下午消息，在 Unreal Fest Shanghai 2026 现场，iQOO 以“Unreal 移动游戏合作伙伴”身份亮相，vivo 性能与游戏技术总经理张名凯...",
+      "source": "新浪军事防务",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-23 15:30",
+      "url": "https://finance.sina.com.cn/jjxw/2026-10-23/doc-iniweywq4936823.shtml",
+      "cross_check_tag": null,
+      "cross_check_confidence": 0.0
+    },
+    {
+      "event_id": "LIVE_20261023154146_5625",
+      "title": "阿里巴巴驰援西藏那曲首批物资已发出",
+      "summary": "新浪科技讯 10月23日下午消息，10月22日22时33分，西藏那曲市巴青县发生7.0级地震。阿里巴巴紧急启动应急响应，协同菜鸟发出首批3700箱食品与饮用水。",
+      "source": "新浪军事防务",
+      "domain": "politics",
+      "impact_level": 0.45,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-23 14:15",
+      "url": "https://finance.sina.com.cn/roll/2026-10-23/doc-iniweuqq8198069.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_212",
+      "title": "杨元庆：未来80%Token将在终端和边缘生成，AI设备将迎新变革",
+      "summary": "新浪科技讯 10月23日下午消息，近日，联想集团董事长兼CEO杨元庆在一场内部领导力发展培训项目中，分享了其对下一阶段AI产业发展趋势及联想战略的最新判断。",
+      "source": "新浪军事防务",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-23 13:07",
+      "url": "https://finance.sina.com.cn/roll/2026-10-23/doc-iniweuqs4908949.shtml",
+      "cross_check_tag": null,
+      "cross_check_confidence": 0.0
+    },
+    {
+      "event_id": "LIVE_20261023154146_5169",
+      "title": "曝联想系入局DeepSeek新一轮融资，DeepSeek最快明年推进IPO",
+      "summary": "新浪科技讯 10月23日上午消息，据外媒援引知情人士消息，DeepSeek新一轮融资引入多家产业及财务投资者，其中包括君联资本（Legend Capital）...",
+      "source": "新浪军事防务",
+      "domain": "politics",
+      "impact_level": 0.45,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-23 12:41",
+      "url": "https://finance.sina.com.cn/roll/2026-10-23/doc-iniweuqs4885768.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_4676",
+      "title": "“老登”相关言论惹争议，小鹏MONA产品经理致歉",
+      "summary": "新浪科技讯 10月23日中午消息，小鹏集团MONA产品经理恩塔近日在社交平台发布视频，为此前MONA L05预售发布会上的“老登”相关言论致歉。",
+      "source": "新浪军事防务",
+      "domain": "politics",
+      "impact_level": 0.45,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-23 12:40",
+      "url": "https://finance.sina.com.cn/roll/2026-10-23/doc-iniweuqq8112653.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_1980",
+      "title": "哈啰顺风车出现疑似招嫖信息，官方回应：已封禁相关账号，将固定线索移交给主管部门依法处理",
+      "summary": "新浪科技讯 10月23日中午消息，据媒体报道，近日有车主反映，在哈啰平台接单顺风车时遇到疑似招嫖信息留言，该订单以送货名义发布。",
+      "source": "新浪军事防务",
+      "domain": "politics",
+      "impact_level": 0.45,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-23 12:18",
+      "url": "https://finance.sina.com.cn/roll/2026-10-23/doc-iniweqhs8220552.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_6942",
+      "title": "iPhone Duo开售，美团闪购：最早一单20分钟送达",
+      "summary": "新浪科技讯 10月23日上午消息，今日早晨8点，iPhone Duo正式发售。新浪科技从美团闪购方面获悉，本次iPhone新品通过平台上300多个城市的Apple授权专营店首发...",
+      "source": "新浪军事防务",
+      "domain": "politics",
+      "impact_level": 0.45,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-23 10:50",
+      "url": "https://finance.sina.com.cn/roll/2026-10-23/doc-iniweqhs8110625.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_9038",
+      "title": "布鲁克林篮网队宣布：阿里巴巴成为AI和云合作伙伴",
+      "summary": "新浪科技讯 10月23日上午消息，纽约时间10月21日（北京时间10月22日）新赛季的揭幕赛上，布鲁克林篮网队正式宣布阿里巴巴成为球队的官方AI与云合作伙伴。",
+      "source": "新浪军事防务",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-23 10:50",
+      "url": "https://finance.sina.com.cn/roll/2026-10-23/doc-iniweqhs8110110.shtml",
+      "cross_check_tag": null,
+      "cross_check_confidence": 0.0
+    },
+    {
+      "event_id": "LIVE_20261023154146_7813",
+      "title": "对话货拉拉张浩：技术创新让货运出海快速融入当地市场",
+      "summary": "2026可持续全球领导者大会于10月20日-22日在上海黄浦世博园区举办。大会期间，货拉拉和Lalamove技术副总裁、首席技术官张浩与新浪科技对话...",
+      "source": "新浪军事防务",
+      "domain": "politics",
+      "impact_level": 0.45,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-23 10:30",
+      "url": "https://finance.sina.com.cn/roll/2026-10-23/doc-iniweqhu4855346.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_9433",
+      "title": "奥士康“A+H”：境外业务从增长引擎沦为业绩拖累 持续加码的高端PCB毛利率也已腰斩",
+      "summary": "出品：新浪财经上市公司研究院 作者：渚 10月20日，奥士康向不特定对象发行的10亿元可转换公司债券“奥士转债”正式在深交所挂牌交易。",
+      "source": "新浪军事防务",
+      "domain": "politics",
+      "impact_level": 0.45,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.08
+      },
+      "timestamp": "2026-10-23 10:02",
+      "url": "https://finance.sina.com.cn/stock/observe/2026-10-23/doc-iniweqhs8038851.shtml",
+      "cross_check_tag": "资金未响应·局限舆论博弈",
+      "cross_check_confidence": 0.82
+    },
+    {
+      "event_id": "LIVE_20261023154146_2755",
+      "title": "特朗普炮轰NBA球星：“勒布朗·詹姆斯不尊重美国”",
+      "summary": "美国总统唐纳德·特朗普周四发文抨击费城76人队前锋勒布朗·詹姆斯。起因是一段视频显示，这位NBA球星在周二76人对阵纽约尼克斯的比赛、自己的76人首秀赛前...",
+      "source": "全球财经与宏观市场",
+      "domain": "economy",
+      "impact_level": 0.53,
+      "affected_nodes": {
+        "POWER_WHOLESALE_PRICE": 0.08
+      },
+      "timestamp": "2026-10-23 15:00",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-23/doc-iniweywn8121547.shtml",
+      "cross_check_tag": null,
+      "cross_check_confidence": 0.0
+    },
+    {
+      "event_id": "LIVE_20261023154146_8481",
+      "title": "韩国KOSPI惊天逆转收高0.3%！早盘一度暴跌超4% 半导体双雄强力吸金引爆V型反弹",
+      "summary": "受隔夜美股科技股重挫及中东局势升级引发的“AI震荡”余波影响，今日韩国股市上演了一场惊心动魄的惊天大逆转。韩国综合股价指数（KOSPI）今日收盘上涨16.53点，涨幅0.30%...",
+      "source": "全球财经与宏观市场",
+      "domain": "technology",
+      "impact_level": 0.91,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.18,
+        "LOCAL_COMMUNITY_RESISTANCE": 0.1,
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-23 15:00",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-23/doc-iniweywu2635815.shtml",
+      "cross_check_tag": null,
+      "cross_check_confidence": 0.0
+    },
+    {
+      "event_id": "LIVE_20261023154146_7119",
+      "title": "日经指数收跌0.3%，电子与银行股拖累大盘，市场仍受AI投资担忧影响",
+      "summary": "10月23日，日本股市小幅收跌。日经225指数下跌0.3%，收于62693.16点，电子、银行等板块走弱，对大盘形成拖累。 此前一个交易日，日本股市遭遇明显抛售。",
+      "source": "全球财经与宏观市场",
+      "domain": "technology",
+      "impact_level": 0.72,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-23 14:54",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-23/doc-iniweywq4885807.shtml",
+      "cross_check_tag": null,
+      "cross_check_confidence": 0.0
+    },
+    {
+      "event_id": "LIVE_20261023154146_7613",
+      "title": "SB Energy考虑推迟IPO至12月，甚至延后至明年",
+      "summary": "知情人士透露，由软银集团控股、负责为OpenAI开发俄亥俄州大型数据中心项目的SB Energy，正考虑将IPO时间安排在今年12月，也有可能推迟到明年。",
+      "source": "全球财经与宏观市场",
+      "domain": "technology",
+      "impact_level": 0.91,
+      "affected_nodes": {
+        "REGULATORY_RESTRICTIONS": 0.18,
+        "LOCAL_COMMUNITY_RESISTANCE": 0.1,
+        "AI_COMPUTE_DEMAND": 0.2,
+        "DATACENTER_POWER_LOAD": 0.15
+      },
+      "timestamp": "2026-10-23 14:52",
+      "url": "https://finance.sina.com.cn/stock/usstock/c/2026-10-23/doc-iniweywu2630133.shtml",
+      "cross_check_tag": null,
+      "cross_check_confidence": 0.0
+    },
+    {
+      "event_id": "LIVE_20261023154146_929",
+      "title": "A股，大奇迹日！",
+      "summary": "来源：中国基金报 【导读】大奇迹日 中国基金报记者 泰勒 大家好啊，今天的A股行情，大喊一声“大奇迹日”，一点都不过分，上午创业板指数一度大跌超3%，下午绝地反击...",
+      "source": "前沿科技与颠覆创新",
+      "domain": "technology",
+      "impact_level": 0.53,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.08
+      },
+      "timestamp": "2026-10-23 15:22",
+      "url": "https://finance.sina.com.cn/stock/marketresearch/2026-10-23/doc-iniweyws1927392.shtml",
+      "cross_check_tag": null,
+      "cross_check_confidence": 0.0
+    },
+    {
+      "event_id": "LIVE_20261023154146_2634",
+      "title": "大奇迹日！A股暴涨三大原因",
+      "summary": "【导读】大奇迹日 来源：中国基金报 记者 泰勒 大家好啊，今天的A股行情，大喊一声“大奇迹日”，一点都不过分，上午创业板指数一度大跌超3%，下午绝地反击，暴涨超4%...",
+      "source": "前沿科技与颠覆创新",
+      "domain": "technology",
+      "impact_level": 0.53,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.08
+      },
+      "timestamp": "2026-10-23 15:22",
+      "url": "https://finance.sina.com.cn/stock/marketresearch/2026-10-23/doc-iniweyws1927119.shtml",
+      "cross_check_tag": null,
+      "cross_check_confidence": 0.0
+    },
+    {
+      "event_id": "LIVE_20261023154146_2507",
+      "title": "龙头20CM涨停！A股这个大反弹，太提气了",
+      "summary": "来源：星图金融研究院 A股三大指数今日集体上涨，截至收盘，上证指数涨0.89%，深证成指涨2.79%，创业板指涨4.16%，北证50涨1.88%，科创50指数涨3.04%。",
+      "source": "前沿科技与颠覆创新",
+      "domain": "technology",
+      "impact_level": 0.53,
+      "affected_nodes": {
+        "AI_COMPUTE_DEMAND": 0.08
+      },
+      "timestamp": "2026-10-23 15:17",
+      "url": "https://finance.sina.com.cn/stock/marketresearch/2026-10-23/doc-iniweyws1918791.shtml",
+      "cross_check_tag": null,
+      "cross_check_confidence": 0.0
+    }
+  ]
+}

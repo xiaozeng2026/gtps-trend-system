@@ -14,6 +14,7 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 
 from ..core.models import DomainCategory
+from .market_data import MarketDataCollector, CrossCheckFilter
 
 
 class GlobalEvent:
@@ -38,6 +39,9 @@ class GlobalEvent:
         self.affected_nodes = affected_nodes
         self.timestamp = timestamp or datetime.now().strftime("%Y-%m-%d %H:%M")
         self.url = url
+        # 金融硬数据交叉核验结果（运行期由 CrossCheckFilter 注入）
+        self.cross_check_tag: Optional[str] = None
+        self.cross_check_confidence: float = 0.0
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -49,7 +53,9 @@ class GlobalEvent:
             "impact_level": self.impact_level,
             "affected_nodes": self.affected_nodes,
             "timestamp": self.timestamp,
-            "url": self.url
+            "url": self.url,
+            "cross_check_tag": self.cross_check_tag,
+            "cross_check_confidence": self.cross_check_confidence,
         }
 
 
@@ -216,6 +222,20 @@ class DailyNewsCollector:
             except Exception as e:
                 pass
             self.channel_stats[ch["name"]] = count
+
+        # ---- 金融硬数据交叉核验：对地缘/能源事件用新浪行情校准冲击烈度 ----
+        try:
+            _mdc = MarketDataCollector(timeout=5)
+            _snap = _mdc.get_live_market_snapshot()
+            for evt in all_events:
+                if evt.domain in (DomainCategory.POLITICS, DomainCategory.ENERGY):
+                    rep = CrossCheckFilter.verify_event_against_market(evt, _snap)
+                    if rep["needs_adjustment"]:
+                        evt.impact_level = rep["verified_impact"]
+                        evt.cross_check_tag = rep["verification_tag"]
+                        evt.cross_check_confidence = rep["confidence"]
+        except Exception:
+            pass  # 行情接口偶发故障时静默跳过，不影响主流程
 
         if all_events:
             self.collected_events = all_events
