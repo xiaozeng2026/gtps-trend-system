@@ -22,6 +22,8 @@ from src.collector.news_collector import DailyNewsCollector
 from src.collector.market_data import MarketDataCollector, CrossCheckFilter
 from src.causal_engine.causal_network import CausalNetwork
 from src.causal_engine.theme_synthesizer import ThemeSynthesizer
+from src.causal_engine.analogy_engine import HistoricalAnalogyEngine
+from src.causal_engine.reflexivity_engine import ReflexivityEngine
 from src.simulation.agent_sandbox import MultiAgentSandbox
 from src.simulation.llm_wargame import LLMClient, LLMWarGameEngine, PERSONAS
 from src.forecasting.scenario_engine import ScenarioForecastEngine
@@ -440,11 +442,12 @@ for _i, _node in enumerate(_sorted_nodes):
 
 
 # ---------------- 主面板：多维标签页 ----------------
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📰 今日国际大事信息流 (Live Feed)",
     "🧠 跨域因果网络与动态推演沙盘",
     "🏛️ 虚拟战略闭门峰会 · 红蓝对抗圆桌",
-    "🔮 未来情景树概率推演与战略预警 (Forecast)"
+    "🔮 未来情景树概率推演与战略预警 (Forecast)",
+    "🪞 历史因果巨镜与反身性雷达 (Mirror)"
 ])
 
 # ---------------- TAB 1: 国际大事信息流 ----------------
@@ -760,3 +763,211 @@ with tab4:
 
             if sc.key_bottlenecks:
                 st.caption(f"关键卡点与不确定性：{', '.join(sc.key_bottlenecks)}")
+
+
+# ---------------- TAB 5: 历史因果巨镜与反身性雷达 ----------------
+with tab5:
+    st.markdown("#### 🪞 历史因果巨镜与索罗斯反身性雷达")
+    st.caption("跨越百年时空对话：以史为鉴的拓扑同构匹配 × 预期自我实现的二级演化")
+
+    # ---- 引擎初始化（session_state 缓存，避免每次 rerun 重复扫盘） ----
+    if "analogy_engine" not in st.session_state:
+        st.session_state.analogy_engine = HistoricalAnalogyEngine()
+    if "reflexivity_engine" not in st.session_state:
+        st.session_state.reflexivity_engine = ReflexivityEngine()
+
+    # 地缘避险指数 (0-100) 归一化为市场异动输入 (0-1)
+    _market_vol = round(risk_index / 100.0, 3)
+    mirror = st.session_state.analogy_engine.match_historical_crisis(
+        st.session_state.causal_net, market_risk_index=_market_vol
+    )
+    top = mirror["top_match"]
+
+    if top is None:
+        st.warning("历史基模库为空：请在 `data/history_db/` 下放置历史危机 JSON 档案。")
+    else:
+        # ============ 展板一：百年历史母本对撞仪表盘 ============
+        st.markdown("##### ⚔️ 展板一 · 百年历史母本对撞仪表盘")
+
+        # 顶部高亮指示器：重合度
+        _sim_val = top["similarity"]
+        _sim_color = "#ef4444" if _sim_val >= 0.80 else ("#f59e0b" if _sim_val >= 0.60 else "#10b981")
+        st.markdown(f"""
+        <div style="background:linear-gradient(135deg,#1e1b4b 0%,#312e81 100%);
+                    border:1px solid #4338ca; border-radius:12px; padding:18px 24px; margin-bottom:14px;">
+            <div style="color:#a5b4fc; font-size:13px; font-weight:600; letter-spacing:1px;">
+                HISTORICAL TOPOLOGY RESONANCE · 历史因果拓扑共振检测
+            </div>
+            <div style="color:#ffffff; font-size:18px; font-weight:700; margin-top:6px; line-height:1.5;">
+                今日全球局势与【{top['name']}】因果拓扑重合度：
+                <span style="color:{_sim_color}; font-size:28px;">{top['similarity_pct']}</span>
+            </div>
+            <div style="color:#818cf8; font-size:12px; margin-top:4px;">时代背景：{top['era']}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # 四大危机相似度排行榜
+        _rank_df = pd.DataFrame({
+            "历史危机母本": [r["name"] for r in mirror["ranking"]],
+            "拓扑相似度": [r["similarity"] for r in mirror["ranking"]],
+        })
+        st.bar_chart(_rank_df.set_index("历史危机母本")["拓扑相似度"])
+
+        # 左右分栏对撞：今日现实 vs 历史当年
+        mc1, mc2 = st.columns(2)
+        with mc1:
+            st.markdown("###### 📡 今日现实特征 · 资金验证状态")
+            # 当前领域特征向量
+            for d, zh in HistoricalAnalogyEngine.DOMAIN_ZH.items():
+                v = mirror["current_vector"].get(d, 0.0)
+                st.progress(min(1.0, max(0.0, v)), text=f"{zh} {v:.2f}")
+            # 资金验证：避险指数 + 金油涨跌
+            _gc = snapshot.get("hf_GC")
+            _oil = snapshot.get("hf_OIL")
+            _cap_lines = [f"地缘避险指数：**{risk_index:.0f}/100**"]
+            if _gc:
+                _cap_lines.append(f"伦敦金 {_gc.change_pct:+.2f}%")
+            if _oil:
+                _cap_lines.append(f"布伦特 {_oil.change_pct:+.2f}%")
+            _verify = "🛡️ 大资本已入场定价" if risk_index >= 60 else ("⚖️ 资金观望" if risk_index >= 25 else "💨 市场低波未定价")
+            st.info(f"**资金交叉验证：** {_verify}（{' · '.join(_cap_lines)}）", icon="💰")
+
+        with mc2:
+            st.markdown(f"###### 📜 历史当年 · {top['era']}")
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-title">危机触发诱因</div>
+                <div style="color:#e5e7eb; font-size:13px; line-height:1.6; margin-top:6px;">
+                    {top['trigger_event']}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            # 历史初始传导链：当年高压领域
+            _hist_core = sorted(mirror["history_vector"].items(), key=lambda kv: kv[1], reverse=True)[:3]
+            st.markdown("**当年初始传导主链：**")
+            for d, v in _hist_core:
+                if d == "market":
+                    continue
+                _zh = HistoricalAnalogyEngine.DOMAIN_ZH.get(d, d)
+                st.markdown(f"- **{_zh}** 烈度 `{v:.2f}`")
+
+        # 同构点陈列
+        with st.expander("🔗 历史同构点：结构相同的传导链条（点击展开）", expanded=True):
+            for s in mirror["similarities"]:
+                st.success(s)
+
+        st.markdown("---")
+
+        # ============ 展板二：历史演变时间轴与现代阻尼 ============
+        st.markdown("##### ⏳ 展板二 · 历史后续演变时间轴与现代阻尼 (Timeline Stepper)")
+
+        _tl_col, _damp_col = st.columns([3, 2])
+        with _tl_col:
+            st.markdown("**当年历史的阶段演进（推演参照系）：**")
+            _timeline_html = ""
+            for step in mirror["historical_trajectory"]:
+                _timeline_html += f"""
+                <div style="border-left:3px solid #8b5cf6; padding:4px 0 14px 16px; position:relative;">
+                    <div style="position:absolute; left:-8px; top:6px; width:13px; height:13px;
+                                border-radius:50%; background:#8b5cf6; border:2px solid #0b0f19;"></div>
+                    <div style="color:#c4b5fd; font-weight:700; font-size:13px;">{step.get('phase','')}</div>
+                    <div style="color:#e5e7eb; font-size:13px; margin-top:2px; line-height:1.5;">{step.get('event','')}</div>
+                    <div style="color:#6b7280; font-size:12px; margin-top:2px;">◈ 关键信号：{step.get('signal','')}</div>
+                </div>"""
+            st.markdown(_timeline_html, unsafe_allow_html=True)
+
+        with _damp_col:
+            st.markdown("**🛡️ 现代抵消变量（时代差异阻尼）：**")
+            _offsets = [d for d in mirror["modern_divergences"] if d.startswith("【现代对冲】")]
+            _computed = [d for d in mirror["modern_divergences"] if not d.startswith("【现代对冲】")]
+            for off in _offsets:
+                st.markdown(f"""
+                <div style="background:linear-gradient(135deg,#052e16 0%,#064e3b 100%);
+                            border:1px solid #059669; border-radius:8px; padding:10px 14px; margin-bottom:8px;">
+                    <div style="color:#6ee7b7; font-size:12.5px; line-height:1.5;">✅ {off.replace('【现代对冲】','')}</div>
+                </div>""", unsafe_allow_html=True)
+            if _computed:
+                st.caption("引擎计算的结构性差异：")
+                for d in _computed:
+                    st.warning(d)
+
+        st.markdown("---")
+
+        # ============ 展板三：索罗斯反身性二级推演卡片 ============
+        st.markdown("##### 🌀 展板三 · 索罗斯反身性（Reflexivity）二级推演")
+
+        # 反身性输入：头号情景概率 + 监管强度（POLITICS 域均值）+ 市场波动
+        _scens = st.session_state.scenario_engine.generate_scenarios()
+        _top_scen = max(_scens, key=lambda s: s.probability) if _scens else None
+        _pol_nodes = [n.intensity for n in nodes.values() if n.domain.value.lower() == "politics"]
+        _reg_intensity = sum(_pol_nodes) / len(_pol_nodes) if _pol_nodes else 0.5
+
+        if _top_scen:
+            reflex = st.session_state.reflexivity_engine.evaluate_reflexivity(
+                top_scenario_title=_top_scen.title,
+                base_probability=_top_scen.probability,
+                regulatory_intensity=_reg_intensity,
+                market_volatility=_market_vol,
+            )
+
+            # 状态徽章（三模式配色）
+            _MODE_STYLE = {
+                "SELF_FULFILLING": ("#7f1d1d", "#fca5a5", "🔥", "触发自实现挤兑机制"),
+                "SELF_DEFEATING": ("#052e16", "#6ee7b7", "🛡️", "触发自毁灭拆弹机制"),
+                "BALANCED_TENSION": ("#1e3a8a", "#93c5fd", "⚖️", "反身性拉锯·弱反馈"),
+            }
+            _bg, _fg, _icon, _label = _MODE_STYLE.get(reflex["mode"], _MODE_STYLE["BALANCED_TENSION"])
+            _base_pct = int(reflex["base_probability"] * 100)
+            _cal_pct = int(reflex["calibrated_probability"] * 100)
+            _delta_pct = reflex["probability_delta"] * 100
+
+            if reflex["mode"] == "SELF_DEFEATING":
+                _badge_text = f"政策提前介入，原本 {_base_pct}% 的危机概率已被对冲平抑至 {_cal_pct}%"
+            elif reflex["mode"] == "SELF_FULFILLING":
+                _badge_text = f"资本抢跑囤积，原本 {_base_pct}% 的危机概率被预期推高至 {_cal_pct}%"
+            else:
+                _badge_text = f"多空预期对冲拉锯，概率维持 {_base_pct}% → {_cal_pct}%"
+
+            st.markdown(f"""
+            <div style="background:{_bg}; border:1px solid {_fg}; border-radius:12px; padding:16px 22px;">
+                <div style="color:{_fg}; font-size:16px; font-weight:700;">
+                    {_icon} {_label}
+                </div>
+                <div style="color:#e5e7eb; font-size:13.5px; margin-top:6px;">{_badge_text}</div>
+                <div style="color:#9ca3af; font-size:12px; margin-top:8px; line-height:1.6;">
+                    {reflex['reasoning']}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # 概率位移可视化 + 驱动力对比
+            rc1, rc2 = st.columns(2)
+            with rc1:
+                st.markdown("**一级静态概率 → 二级反身性校准：**")
+                st.progress(min(1.0, reflex["base_probability"]),
+                            text=f"推演基准 {_base_pct}%")
+                st.progress(min(1.0, reflex["calibrated_probability"]),
+                            text=f"反身性校准 {_cal_pct}%（{_delta_pct:+.0f}%）")
+            with rc2:
+                st.markdown("**两股反身性驱动力：**")
+                _drv = reflex["drives"]
+                st.progress(min(1.0, _drv["self_fulfilling"]),
+                            text=f"资本抢跑驱动 {_drv['self_fulfilling']:.2f}")
+                st.progress(min(1.0, _drv["self_defeating"]),
+                            text=f"政策拆弹驱动 {_drv['self_defeating']:.2f}")
+
+            # 高管反脆弱决策备忘录
+            st.markdown(f"""
+            <div style="background:linear-gradient(135deg,#1c1917 0%,#292524 100%);
+                        border:1px solid #a8a29e; border-radius:12px; padding:16px 22px; margin-top:10px;">
+                <div style="color:#d6d3d1; font-size:13px; font-weight:700; letter-spacing:1px;">
+                    📋 高管反脆弱决策备忘录（ANTI-FRAGILE MEMO）
+                </div>
+                <div style="color:#e7e5e4; font-size:13.5px; margin-top:8px; line-height:1.7;">
+                    {reflex['anti_fragile_advice']}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            st.caption("反身性输入：头号情景概率 × 监管干预强度（POLITICS 域节点均值）× 实时市场波动（地缘避险指数归一化）")
+        else:
+            st.info("暂无可用情景，无法执行反身性二级推演。")
