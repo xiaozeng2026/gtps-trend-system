@@ -98,7 +98,12 @@ python run_demo.py          # 端到端推演演示（采集→因果→仿真�
 ## 五、路线图
 
 - [x] 阶段一：项目骨架与核心依赖
-- [ ] 阶段二：core 数据契约与 collector 情报采集 MVP
-- [ ] 阶段三：ingestion 特征管线 + causal_engine 因果图谱 MVP
-- [ ] 阶段四：simulation 算力-电力-政策三方博弈沙盒
-- [ ] 阶段五：forecasting 情景树 + Streamlit 预警大屏
+- [x] 阶段二：core 数据契约与 collector 情报采集 MVP
+- [x] 阶段三：ingestion 特征管线 + causal_engine 因果图谱 MVP
+- [x] 阶段四：simulation 算力-电力-政策三方博弈沙盒
+- [x] 阶段五：forecasting 情景树 + Streamlit 预警大屏
+- [x] 增强：LLM 参谋部红蓝对抗推演引擎与圆桌视窗（无 Key 自动降级内置模板）
+- [x] 增强：金融行情直连 + 地缘新闻硬数据交叉核验（真实性证据链）
+- [x] 增强：跨主题因果图热插拔引擎（ThemeSynthesizer 任意命题自生图谱）
+- [x] 增强：Streamlit 主题中心 + AI 命题生成器 + 全局自适应渲染
+- [x] 交付：生产环境部署资产（局域网多端配置、Dockerfile 与 docker-compose）

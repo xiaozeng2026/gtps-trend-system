@@ -8,6 +8,8 @@
 
 行情来源：新浪金融公开行情直通车（免 Key、免代理、国内网络极速）。
 """
+from __future__ import annotations
+
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
