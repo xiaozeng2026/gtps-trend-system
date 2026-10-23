@@ -1,0 +1,38 @@
+{
+  "theme_id": "THEME_CRITICAL_MINERALS",
+  "theme_name": "战略关键矿产与稀土出口管制博弈",
+  "description": "高纯石墨/稀土出口配额收紧 → 动力电池产业链交期拉长 → 欧美替代矿山与深加工加速 → 全球电动车成本上升。",
+  "nodes": [
+    {"node_id": "RARE_EARTH_QUOTA",       "name": "稀土/高纯石墨出口配额收紧度",     "domain": "POLITICS", "intensity": 0.78, "description": "战略关键矿产出口管制与配额持续收紧"},
+    {"node_id": "BATTERY_CELL_LEADTIME",  "name": "动力电池电芯交付周期拉长",       "domain": "ECONOMY",  "intensity": 0.70, "description": "上游原料短缺导致电芯厂交期 6-12 个月"},
+    {"node_id": "NEW_VEHICLE_COST",       "name": "电动车终端售价上调压力",         "domain": "ECONOMY",  "intensity": 0.62, "description": "BOM 成本传导使终端 EV 价格持续上行"},
+    {"node_id": "EUROPE_LITHIUM_MINE",    "name": "欧洲锂/稀土替代矿山开采周期",   "domain": "TECHNOLOGY","intensity": 0.45, "description": "欧盟 Critical Raw Materials Act 推动的本土替代矿项目"},
+    {"node_id": "US_ONSHORE_REFINERY",    "name": "北美本土高纯金属深加工扩建",     "domain": "ECONOMY",  "intensity": 0.40, "description": "美国《通胀削减法案》补贴下的本土冶炼厂扩容"},
+    {"node_id": "SUBSTITUTION_TECH",      "name": "无稀土电机/硅基电池替代技术",   "domain": "TECHNOLOGY","intensity": 0.55, "description": "车企加速推进的去稀土化电机与无钴电池"},
+    {"node_id": "CHINA_INDUSTRY_RESPONSE","name": "中国稀土产业整合与深加工升级",   "domain": "ECONOMY",  "intensity": 0.50, "description": "配额收紧倒逼本土稀土深加工附加值提升"},
+    {"node_id": "GLOBAL_EV_PENETRATION",  "name": "全球电动车渗透率上行节奏",       "domain": "SOCIETY",  "intensity": 0.65, "description": "配额收紧对全球 EV 渗透率扩张的边际影响"}
+  ],
+  "links": [
+    {"source_id": "RARE_EARTH_QUOTA",       "target_id": "BATTERY_CELL_LEADTIME",   "weight":  0.85, "delay_months":  2, "mechanism": "关键原料配额收紧直接推高上游交付周期"},
+    {"source_id": "BATTERY_CELL_LEADTIME",  "target_id": "NEW_VEHICLE_COST",         "weight":  0.75, "delay_months":  3, "mechanism": "上游成本传导至整车 BOM 与终端定价"},
+    {"source_id": "NEW_VEHICLE_COST",       "target_id": "GLOBAL_EV_PENETRATION",    "weight": -0.55, "delay_months":  6, "mechanism": "价格上涨抑制部分价格敏感型需求（调节回路）"},
+    {"source_id": "RARE_EARTH_QUOTA",       "target_id": "EUROPE_LITHIUM_MINE",      "weight":  0.70, "delay_months":  9, "mechanism": "配额收紧驱动欧盟本土矿项目加速推进"},
+    {"source_id": "RARE_EARTH_QUOTA",       "target_id": "US_ONSHORE_REFINERY",      "weight":  0.68, "delay_months":  9, "mechanism": "配额收紧促使美国本土冶炼厂享受补贴后加速"},
+    {"source_id": "RARE_EARTH_QUOTA",       "target_id": "SUBSTITUTION_TECH",        "weight":  0.72, "delay_months":  6, "mechanism": "持续管制让车企有强烈动机去稀土化"},
+    {"source_id": "RARE_EARTH_QUOTA",       "target_id": "CHINA_INDUSTRY_RESPONSE",  "weight":  0.65, "delay_months":  6, "mechanism": "配额压力倒逼中国提升稀土深加工附加值"},
+    {"source_id": "SUBSTITUTION_TECH",      "target_id": "GLOBAL_EV_PENETRATION",    "weight":  0.55, "delay_months":  18,"mechanism": "替代技术进步缓解成本压力、支撑渗透率（强化回路）"},
+    {"source_id": "CHINA_INDUSTRY_RESPONSE","target_id": "RARE_EARTH_QUOTA",         "weight": -0.30, "delay_months": 24,"mechanism": "本土深加工提升国际市场议价，未来配额压力可适度缓解（调节回路）"},
+    {"source_id": "SUBSTITUTION_TECH",      "target_id": "RARE_EARTH_QUOTA",         "weight":  0.55, "delay_months": 12,"mechanism": "替代技术成熟使中国有底气进一步收紧稀土管制（强化回路）"}
+  ],
+  "personas": [
+    {"persona_id": "MINING_BLOC",          "name": "全球矿业与冶炼寡头",   "strategy": "推高精矿定价、加速自有替代矿项目、与车企签订长协"},
+    {"persona_id": "CHINA_MINISTRY",       "name": "中国工信部与稀土集团", "strategy": "配额精准管控、倒逼本土深加工升级、与下游整车厂纵向整合"},
+    {"persona_id": "EUROPE_REGULATOR",     "name": "欧盟 CRMA 委员会",     "strategy": "推动本土矿开采补贴、强制供应链追溯、关键矿产储备"},
+    {"persona_id": "US_IRA_ALLIANCE",      "name": "美国 IRA 补贴受益方",  "strategy": "本土冶炼厂加速扩建、推动盟友国矿产安全联盟"}
+  ],
+  "scenarios": [
+    {"scenario_id": "SC_MINERALS_SUPPLY_SECURED", "probability": 0.40, "time_horizon": "2027-2030", "narrative": "欧美替代矿与深加工逐步落地，供应链多元化实现"},
+    {"scenario_id": "SC_MINERALS_CHINA_RECLAIMED","probability": 0.35, "time_horizon": "2027-2030", "narrative": "中国稀土深加工升级后重新主导全球定价权"},
+    {"scenario_id": "SC_MINERALS_SUBSTITUTION_WINS","probability": 0.25, "time_horizon": "2029-2032","narrative": "无稀土电机/硅基电池等替代技术突破性成熟，矿产重要性边际下降"}
+  ]
+}

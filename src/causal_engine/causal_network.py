@@ -2,9 +2,13 @@
 Cross-Domain Causal Network Engine.
 Models the causal graph, loops, and cascade propagation across Technology, Energy, Politics, Economy, and Society.
 """
-from typing import Dict, List, Tuple
+import json
+import os
+from typing import Any, Dict, List, Optional, Tuple
+
 import networkx as nx
-from ..core.models import CausalNode, CausalLink, DomainCategory, MultimodalSignal
+
+from ..core.models import CausalLink, CausalNode, DomainCategory, MultimodalSignal
 
 
 class CausalNetwork:
@@ -179,6 +183,91 @@ class CausalNetwork:
             delay_months=link.delay_months,
             mechanism=link.mechanism
         )
+
+    # ------------------------------------------------------------------ #
+    # 跨主题热插拔引擎（Theme Hot-Plug Engine）
+    # ------------------------------------------------------------------ #
+    def clear(self):
+        """清空全部节点与边，为新主题热插拔腾出空间。"""
+        self.graph.clear()
+        self.nodes_data.clear()
+        self.links_data.clear()
+
+    def load_theme_from_dict(self, theme_data: Dict[str, Any]) -> str:
+        """
+        根据标准主题 JSON 字典，在 0 秒内热插拔注册节点与边。
+        返回 theme_id 便于调用方识别当前生效主题。
+        标准 schema:
+          { theme_id, theme_name, description,
+            nodes: [{node_id, name, domain, intensity?, description?}],
+            links: [{source_id, target_id, weight, delay_months?, mechanism?}],
+            personas?, scenarios? }
+        """
+        self.clear()
+        theme_id = theme_data.get("theme_id", "UNKNOWN_THEME")
+
+        # ---- 注册节点 ----
+        for nd in theme_data.get("nodes", []):
+            dom_raw = nd.get("domain", "ECONOMY")
+            try:
+                domain = DomainCategory(dom_raw.upper())
+            except ValueError:
+                # 容错：不规范值回退到 ECONOMY
+                domain = DomainCategory.ECONOMY
+            self.add_node(CausalNode(
+                node_id=nd["node_id"],
+                name=nd.get("name", nd["node_id"]),
+                domain=domain,
+                intensity=float(nd.get("intensity", 0.5)),
+                description=nd.get("description", ""),
+            ))
+
+        # ---- 注册边 ----
+        for lk in theme_data.get("links", []):
+            src = lk["source_id"]
+            tgt = lk["target_id"]
+            if src not in self.nodes_data or tgt not in self.nodes_data:
+                # 跳过主题引用了不存在节点的坏配置
+                continue
+            self.add_link(CausalLink(
+                source_id=src,
+                target_id=tgt,
+                weight=float(lk["weight"]),
+                delay_months=int(lk.get("delay_months", 0)),
+                mechanism=lk.get("mechanism", ""),
+            ))
+
+        return theme_id
+
+    def load_theme_from_file(self, json_path: str) -> str:
+        """从 JSON 文件加载主题配置，热插拔生效。"""
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return self.load_theme_from_dict(data)
+
+    def list_builtin_themes(self) -> List[Dict[str, str]]:
+        """扫描 config/themes/ 下全部预置主题并返回 {theme_id, theme_name, path} 摘要。"""
+        base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..",
+                                "config", "themes")
+        base_dir = os.path.abspath(base_dir)
+        out = []
+        if not os.path.isdir(base_dir):
+            return out
+        for fname in sorted(os.listdir(base_dir)):
+            if not fname.endswith(".json"):
+                continue
+            fp = os.path.join(base_dir, fname)
+            try:
+                with open(fp, "r", encoding="utf-8") as f:
+                    head = json.load(f)
+            except Exception:
+                continue
+            out.append({
+                "theme_id": head.get("theme_id", "UNKNOWN"),
+                "theme_name": head.get("theme_name", ""),
+                "path": fp,
+            })
+        return out
 
     def update_from_multimodal_signal(self, signal: MultimodalSignal):
         """

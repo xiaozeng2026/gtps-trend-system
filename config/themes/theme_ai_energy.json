@@ -1,0 +1,38 @@
+{
+  "theme_id": "THEME_AI_ENERGY",
+  "theme_name": "前沿 AI 算力扩张与区域能源重构",
+  "description": "全球算力爆发直接推高电网承压、倒逼核电与私有微网，叠加监管封锁与算力外迁。",
+  "nodes": [
+    {"node_id": "AI_COMPUTE_DEMAND",         "name": "前沿大模型算力需求扩张",         "domain": "TECHNOLOGY", "intensity": 0.85, "description": "多模态大模型训练与 Agent 推理带来的指数级算力开销"},
+    {"node_id": "DATACENTER_POWER_LOAD",     "name": "超算中心区域用电负荷",             "domain": "ENERGY",     "intensity": 0.78, "description": "数据中心高密度机柜对区域电网吉瓦级负荷汲取"},
+    {"node_id": "GRID_TRANSMISSION_STRESS",  "name": "区域电网与变电承载承压度",         "domain": "ENERGY",     "intensity": 0.72, "description": "高压变电站变压器瓶颈、并网周期过长"},
+    {"node_id": "POWER_WHOLESALE_PRICE",     "name": "区域工商业及尖峰电价",             "domain": "ECONOMY",    "intensity": 0.68, "description": "容量拍卖出清价暴涨推高工商业及居民峰值电费"},
+    {"node_id": "LOCAL_COMMUNITY_RESISTANCE","name": "地方社区抵触与民意极化",           "domain": "SOCIETY",    "intensity": 0.55, "description": "对冷却水消耗与民用电价外溢分摊的不满抗议"},
+    {"node_id": "REGULATORY_RESTRICTIONS",   "name": "地方监管干预与能耗审批收紧",       "domain": "POLITICS",   "intensity": 0.60, "description": "州/市政府暂停新算力中心审批、出台 PUE 与配额考核"},
+    {"node_id": "CLEAN_NUCLEAR_PPA_CAPEX",   "name": "核能/地热/微电网私有资本注入",     "domain": "ECONOMY",    "intensity": 0.70, "description": "巨头注资重启核电站、签订 20 年清洁能源 PPA"},
+    {"node_id": "GLOBAL_COMPUTE_MIGRATION",  "name": "算力集群全球地理再平衡",           "domain": "TECHNOLOGY", "intensity": 0.50, "description": "算力向中东低电价区、北欧水电区及临核电力腹地外溢迁移"}
+  ],
+  "links": [
+    {"source_id": "AI_COMPUTE_DEMAND",        "target_id": "DATACENTER_POWER_LOAD",    "weight":  0.90, "delay_months":  1, "mechanism": "算力集群上架直接转化为物理电网负荷需求"},
+    {"source_id": "DATACENTER_POWER_LOAD",    "target_id": "GRID_TRANSMISSION_STRESS", "weight":  0.85, "delay_months":  3, "mechanism": "局部负荷远超变电站设计冗余，导致配电网拥堵"},
+    {"source_id": "GRID_TRANSMISSION_STRESS", "target_id": "POWER_WHOLESALE_PRICE",    "weight":  0.75, "delay_months":  2, "mechanism": "容量稀缺导致区域电网出清价快速攀升"},
+    {"source_id": "POWER_WHOLESALE_PRICE",    "target_id": "LOCAL_COMMUNITY_RESISTANCE","weight": 0.65, "delay_months":  2, "mechanism": "居民水电费上涨与生活环境受扰动触发公众不满"},
+    {"source_id": "LOCAL_COMMUNITY_RESISTANCE","target_id": "REGULATORY_RESTRICTIONS","weight":  0.80, "delay_months":  3, "mechanism": "选票与听证会压力促使议员提出限制性法案"},
+    {"source_id": "REGULATORY_RESTRICTIONS",  "target_id": "GLOBAL_COMPUTE_MIGRATION", "weight":  0.70, "delay_months":  6, "mechanism": "审批受阻迫使厂商将机房移至政策友好或能源低廉地区"},
+    {"source_id": "GRID_TRANSMISSION_STRESS", "target_id": "CLEAN_NUCLEAR_PPA_CAPEX",  "weight":  0.80, "delay_months":  4, "mechanism": "公共电网并网遥遥无期，倒逼绕过公共电网自建/直购核电"},
+    {"source_id": "CLEAN_NUCLEAR_PPA_CAPEX", "target_id": "GRID_TRANSMISSION_STRESS", "weight": -0.45, "delay_months": 12, "mechanism": "自备核电/微电网分流公共大电网压力（调节回路）"},
+    {"source_id": "REGULATORY_RESTRICTIONS",  "target_id": "AI_COMPUTE_DEMAND",        "weight": -0.30, "delay_months":  6, "mechanism": "合规成本攀升促使团队更加注重能效比（调节回路）"},
+    {"source_id": "CLEAN_NUCLEAR_PPA_CAPEX", "target_id": "AI_COMPUTE_DEMAND",        "weight":  0.40, "delay_months": 12, "mechanism": "低价清洁基荷电力反哺算力扩张（强化回路）"}
+  ],
+  "personas": [
+    {"persona_id": "TECH_HYPERSCALER",   "name": "全球算力与科技资本寡头",   "strategy": "威胁将核心算力迁往政策友好海外节点，推进离网核电与私有微网"},
+    {"persona_id": "GRID_GUARDIAN",      "name": "区域电网与公用事业守护者", "strategy": "提高容量拍卖保证金、加征尖峰附加费、优先保障民用供电"},
+    {"persona_id": "STATE_REGULATOR",    "name": "地方主权政府与公用事业委员会","strategy": "以反垄断和水资源环评为由发起立法调查，暂缓新建供地"},
+    {"persona_id": "GLOBAL_ARBITRAGEUR", "name": "中东北欧地缘主权算力游说团","strategy": "2 美分/度绿电 + 十年免税报价，游说算力巨头跨国大迁徙"}
+  ],
+  "scenarios": [
+    {"scenario_id": "SCENARIO_ALPHA_PRIVATE_MICROGRID", "probability": 0.42, "time_horizon": "2026-2028", "narrative": "巨头离网核电与私有微网闭环成型，算力对民用电价外溢被切断"},
+    {"scenario_id": "SCENARIO_BETA_GLOBAL_MIGRATION",   "probability": 0.38, "time_horizon": "2026-2029", "narrative": "监管锁死本地审批，算力向中东/北欧大规模外迁"},
+    {"scenario_id": "SCENARIO_GAMMA_CASCADE_BLACKOUT",  "probability": 0.20, "time_horizon": "2027",      "narrative": "极端气候撞车算力峰值，区域性级联跳闸与用电配给"}
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "theme_id": "THEME_RED_SEA_SHIPPING",
+  "theme_name": "红海咽喉航运危机与全球供应链通胀",
+  "description": "红海航运中断 → 苏伊士运河费率崩塌 → 好望角绕行燃油成本与运力短缺 → 欧洲制造业通胀传导。",
+  "nodes": [
+    {"node_id": "RED_SEA_BLOCKADE",         "name": "红海咽喉航运受阻强度",           "domain": "POLITICS", "intensity": 0.82, "description": "红海沿岸武装冲突/袭击导致航线中断或大幅减速"},
+    {"node_id": "CONTAINER_FREIGHT_RATE",   "name": "红海航线集装箱运价指数",         "domain": "ECONOMY",  "intensity": 0.75, "description": "红海-苏伊士航线运价周环比跳涨"},
+    {"node_id": "SUEZ_TOLL_COLLAPSE",       "name": "苏伊士运河通行费断崖",           "domain": "ECONOMY",  "intensity": 0.40, "description": "绕行好望角使得苏伊士运河通行量与手续费收入骤降"},
+    {"node_id": "CAPE_GOOD_HOPE_BUNKER",    "name": "好望角绕行燃油附加成本",         "domain": "ENERGY",   "intensity": 0.68, "description": "绕道增加 10-14 天航行，燃油成本与租船费率攀升"},
+    {"node_id": "EUROPE_MANU_INFLATION",    "name": "欧洲制造业输入性通胀传导",       "domain": "ECONOMY",  "intensity": 0.55, "description": "化工、汽车、机械等制造业原料与产成品物流成本上升推高 CPI"},
+    {"node_id": "NAVY_ESCORT_EXPENSE",      "name": "多国海军护航经费开销",           "domain": "POLITICS", "intensity": 0.45, "description": "美英法等国派遣军舰护航，纳税人承担额外军费"},
+    {"node_id": "INSURANCE_PREMIUM_SPIKE",  "name": "航运战争险保费暴涨",             "domain": "ECONOMY",  "intensity": 0.60, "description": "海盗/袭击风险上升使航运保险保费倍数上涨"},
+    {"node_id": "CHINA_RERA_ALTERNATIVE",   "name": "中国中欧班列与中欧陆地港口替代", "domain": "ECONOMY",  "intensity": 0.50, "description": "红海受阻倒逼贸易改走中欧班列与希腊比雷埃夫斯港"}
+  ],
+  "links": [
+    {"source_id": "RED_SEA_BLOCKADE",        "target_id": "CONTAINER_FREIGHT_RATE",  "weight":  0.88, "delay_months":  1, "mechanism": "航线中断直接推高运价与租船费率"},
+    {"source_id": "RED_SEA_BLOCKADE",        "target_id": "CAPE_GOOD_HOPE_BUNKER",   "weight":  0.85, "delay_months":  1, "mechanism": "被迫绕行好望角增加航次与燃油消耗"},
+    {"source_id": "CONTAINER_FREIGHT_RATE",  "target_id": "EUROPE_MANU_INFLATION",   "weight":  0.72, "delay_months":  2, "mechanism": "运价上涨传导至工业原料与产成品物流成本"},
+    {"source_id": "CAPE_GOOD_HOPE_BUNKER",   "target_id": "EUROPE_MANU_INFLATION",   "weight":  0.60, "delay_months":  2, "mechanism": "燃油成本进入航运定价继续推高终端通胀"},
+    {"source_id": "RED_SEA_BLOCKADE",        "target_id": "NAVY_ESCORT_EXPENSE",     "weight":  0.75, "delay_months":  1, "mechanism": "多国联合护航行动持续消耗国防预算"},
+    {"source_id": "RED_SEA_BLOCKADE",        "target_id": "SUEZ_TOLL_COLLAPSE",      "weight":  0.90, "delay_months":  2, "mechanism": "船舶直接绕行导致苏伊士运河通行量断崖"},
+    {"source_id": "RED_SEA_BLOCKADE",        "target_id": "INSURANCE_PREMIUM_SPIKE", "weight":  0.82, "delay_months":  1, "mechanism": "战争险保费按航线风险倍数上调"},
+    {"source_id": "CONTAINER_FREIGHT_RATE",  "target_id": "CHINA_RERA_ALTERNATIVE",  "weight":  0.65, "delay_months":  2, "mechanism": "海运运价高企使中欧班列/陆路港口重新具备价格竞争力"},
+    {"source_id": "CHINA_RERA_ALTERNATIVE",  "target_id": "SUEZ_TOLL_COLLAPSE",      "weight":  0.55, "delay_months":  3, "mechanism": "替代通道分流进一步加剧苏伊士通行费崩塌（强化回路）"},
+    {"source_id": "NAVY_ESCORT_EXPENSE",     "target_id": "RED_SEA_BLOCKADE",        "weight": -0.35, "delay_months":  6, "mechanism": "常态化护航逐步降低沿线袭击概率（调节回路）"},
+    {"source_id": "SUEZ_TOLL_COLLAPSE",      "target_id": "CHINA_RERA_ALTERNATIVE",  "weight":  0.50, "delay_months":  3, "mechanism": "苏伊士通行费崩塌进一步提升中欧班列与陆路港口价格竞争力（强化回路）"}
+  ],
+  "personas": [
+    {"persona_id": "SHIPPING_CARRIER",     "name": "全球集装箱航运寡头", "strategy": "借机涨价、推高附加费、优先保障高毛利航线"},
+    {"persona_id": "EGYPT_SUEZ_AUTHORITY", "name": "苏伊士运河管理局",   "strategy": "考虑降费抢回运量、联合国际海事组织护航"},
+    {"persona_id": "EUROPE_MANUFACTURER",  "name": "欧洲制造业协会",     "strategy": "向欧盟施压要求更灵活供应链缓冲、部分产能回迁"},
+    {"persona_id": "CHINA_LOGISTICS_BLOC", "name": "中国陆港班列集团",   "strategy": "加大中欧班列运力投放、比雷埃夫斯港扩建"}
+  ],
+  "scenarios": [
+    {"scenario_id": "SC_RED_SEA_NORMALIZE",  "probability": 0.35, "time_horizon": "2026-2027", "narrative": "国际联合护航初见成效，红海航线逐步恢复，运价回归常态"},
+    {"scenario_id": "SC_SUPPLY_CHAIN_REROUTE","probability": 0.45, "time_horizon": "2026-2028","narrative": "红海长期受阻倒逼全球供应链结构性重构，好望角与中欧班列成为新常态"},
+    {"scenario_id": "SC_GLOBAL_STAGFLATION",  "probability": 0.20, "time_horizon": "2027",      "narrative": "能源+航运双重通胀引爆全球滞胀，央行进退维谷"}
+  ]
+}
