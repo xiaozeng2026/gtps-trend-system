@@ -14,6 +14,7 @@ if sys.platform == "win32":
         pass
 
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 from datetime import datetime
 
@@ -27,6 +28,10 @@ from src.causal_engine.reflexivity_engine import ReflexivityEngine
 from src.simulation.agent_sandbox import MultiAgentSandbox
 from src.simulation.llm_wargame import LLMClient, LLMWarGameEngine, PERSONAS
 from src.forecasting.scenario_engine import ScenarioForecastEngine
+from src.visualization.graph_visualizer import (
+    render_causal_graph_html,
+    render_entity_knowledge_graph_html,
+)
 
 # 页面基础配置
 st.set_page_config(
@@ -525,26 +530,49 @@ with tab1:
 with tab2:
     st.markdown("#### 🧠 跨领域因果网络拓扑状态与系统内生反馈环")
     
-    col_g1, col_g2 = st.columns([3, 2])
-    
-    with col_g1:
-        st.markdown("##### 核心因果变量强度监控 (0.00 ~ 1.00)")
-        node_records = []
-        for nid, node in nodes.items():
-            node_records.append({
-                "节点代号": nid,
-                "领域分类": node.domain.value.upper(),
-                "变量名称": node.name,
-                "当前强度": round(node.intensity, 2),
-                "演进说明": node.description
-            })
-        df_nodes = pd.DataFrame(node_records)
-        
-        # 柱状图直观展示强度
-        st.bar_chart(df_nodes.set_index("变量名称")["当前强度"])
-        st.dataframe(df_nodes[["领域分类", "变量名称", "当前强度", "演进说明"]], use_container_width=True, hide_index=True)
+    st.caption("力导向全景图谱 · 拖拽节点可重排拓扑 · 滚轮缩放 · 悬停自动高亮相邻传导链路")
 
-    with col_g2:
+    # ---- 视图控制栏 ----
+    ctl1, ctl2, ctl3 = st.columns([2, 2, 1])
+    with ctl1:
+        view_mode = st.radio(
+            "图谱视图",
+            ["因果力导向图谱", "事件-实体关联图谱"],
+            horizontal=True,
+            label_visibility="collapsed",
+        )
+    with ctl2:
+        highlight_loops = st.toggle("金色高亮反馈环节点", value=True)
+    with ctl3:
+        graph_height = st.select_slider("画布高度", options=[520, 580, 650, 720], value=580)
+
+    # ---- 全景交互式图谱主视图 ----
+    if view_mode == "事件-实体关联图谱":
+        graph_html = render_entity_knowledge_graph_html(events, height=graph_height)
+        st.caption(
+            f"已解析 {len(events)} 条当日真实国际事件，自动识别涉事地缘国家 / 关键机构 / 关键产业实体，"
+            "构建「事件 ➔ 实体」星形关联网络。"
+        )
+    else:
+        graph_html = render_causal_graph_html(
+            st.session_state.causal_net,
+            highlight_loops=highlight_loops,
+            height=graph_height,
+        )
+        st.caption(
+            f"当前主题共 {len(nodes)} 个因果变量、"
+            f"{len(st.session_state.causal_net.links_data)} 条传导关系、"
+            f"{len(st.session_state.causal_net.find_feedback_loops())} 个内生反馈环。"
+            "绿色实线 = 正向强化，红色虚线 = 负向制约，线宽随传导强度变化。"
+        )
+
+    components.html(graph_html, height=graph_height + 12, scrolling=False)
+
+    st.markdown("---")
+
+    col_g1, col_g2 = st.columns([2, 3])
+
+    with col_g1:
         st.markdown("##### ⚠️ 系统内生因果闭环反馈 (Feedback Loops)")
         loops = st.session_state.causal_net.find_feedback_loops()
         if loops:
@@ -552,12 +580,34 @@ with tab2:
                 names = [nodes[n].name for n in lp]
                 loop_str = " ➔<br>".join([f"<b>{n}</b>" for n in names] + [f"<b>{names[0]}</b>"])
                 st.info(f"**因果自强化/制约循环 {idx}：**<br>{loop_str}", icon="🔄")
-        
+        else:
+            st.caption("当前主题尚未形成闭环回路（需同时存在强化与调节回路）。")
+
         st.markdown("##### 动态冲击传导演练")
         if st.button("▶️ 单步推进系统动态演进 (Propagate 1 Step)", use_container_width=True):
             st.session_state.causal_net.propagate_dynamics(steps=1)
-            st.toast("系统已完成 1 步因果级联演化！")
+            st.toast("系统已完成 1 步因果级联演化！图谱与强度已刷新。")
             st.rerun()
+
+    with col_g2:
+        node_records = []
+        for nid, node in nodes.items():
+            node_records.append({
+                "节点代号": nid,
+                "领域分类": node.domain.value.upper(),
+                "变量名称": node.name,
+                "当前强度": round(node.intensity, 2),
+                "演进说明": node.description,
+            })
+        df_nodes = pd.DataFrame(node_records)
+
+        with st.expander(f"📊 核心因果变量强度明细（0.00 ~ 1.00） · 共 {len(df_nodes)} 项", expanded=False):
+            st.bar_chart(df_nodes.set_index("变量名称")["当前强度"])
+            st.dataframe(
+                df_nodes[["领域分类", "变量名称", "当前强度", "演进说明"]],
+                use_container_width=True,
+                hide_index=True,
+            )
 
 
 # ---------------- TAB 3: 虚拟战略闭门峰会 · 红蓝对抗圆桌 ----------------
@@ -593,16 +643,25 @@ with tab3:
 
     # ---- 顶部操作栏：议题选择 + 启动 ----
     op1, op2 = st.columns([3, 1])
+    chosen_evt = None
     with op1:
         evt_options = {e.title: e for e in events}
-        chosen_title = st.selectbox("🎯 选择圆桌对抗议题（源自今日捕获的真实国际要闻）：", list(evt_options.keys()))
-        chosen_evt = evt_options[chosen_title]
-        st.caption(f"议题背景：{chosen_evt.summary}")
+        if evt_options:
+            chosen_title = st.selectbox("🎯 选择圆桌对抗议题（源自今日捕获的真实国际要闻）：", list(evt_options.keys()))
+            chosen_evt = evt_options[chosen_title]
+            st.caption(f"议题背景：{chosen_evt.summary}")
+        else:
+            st.warning("尚未捕获到今日事件，请先在上方「📡 每日真实国际大事全网采集」重抓后再启动圆桌对抗。", icon="⚠️")
     with op2:
         st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True)
-        launch = st.button("⚔️ 启动闭门圆桌对抗推演", use_container_width=True, type="primary")
+        launch = st.button(
+            "⚔️ 启动闭门圆桌对抗推演",
+            use_container_width=True,
+            type="primary",
+            disabled=chosen_evt is None,
+        )
 
-    if launch:
+    if launch and chosen_evt is not None:
         cfg = st.session_state.get("llm_config", {})
         engine = LLMWarGameEngine(LLMClient(
             api_key=cfg.get("api_key") or None,
