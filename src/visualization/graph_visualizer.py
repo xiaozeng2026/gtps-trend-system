@@ -156,7 +156,15 @@ _CAUSAL_TEMPLATE = r"""<!DOCTYPE html>
     }
     var chartDom = document.getElementById('gtps-graph-' + graphId);
     if (!chartDom) return;
-    var chart = echarts.init(chartDom, null, { renderer: 'canvas' });
+    
+    // 强制显式指定渲染物理尺寸，彻底防御 Streamlit Tab 切换时的 display:none (0px x 0px) 问题
+    var initWidth = chartDom.clientWidth || window.innerWidth || 900;
+    var initHeight = (_HEIGHT_);
+    var chart = echarts.init(chartDom, null, {
+      renderer: 'canvas',
+      width: initWidth,
+      height: initHeight
+    });
 
     var option = {
     backgroundColor: '#0e1117',
@@ -230,7 +238,35 @@ _CAUSAL_TEMPLATE = r"""<!DOCTYPE html>
   };
 
     chart.setOption(option);
-    window.addEventListener('resize', function(){ chart.resize(); });
+
+    // 强力自愈：通过 ResizeObserver 与多重定时器，保证 Tab 切换瞬间立即唤醒重绘
+    if (window.ResizeObserver) {
+      var ro = new ResizeObserver(function() {
+        if (chartDom.clientWidth > 0) {
+          chart.resize({
+            width: chartDom.clientWidth,
+            height: (_HEIGHT_)
+          });
+        }
+      });
+      ro.observe(chartDom);
+      ro.observe(document.body);
+    }
+
+    [150, 400, 800, 1500].forEach(function(delay) {
+      setTimeout(function() {
+        if (chart) {
+          chart.resize({
+            width: chartDom.clientWidth || window.innerWidth || 900,
+            height: (_HEIGHT_)
+          });
+        }
+      }, delay);
+    });
+
+    window.addEventListener('resize', function(){
+      if (chart) chart.resize();
+    });
   }
   initChart();
 })();
@@ -293,7 +329,11 @@ _ENTITY_TEMPLATE = r"""<!DOCTYPE html>
     }
     var chartDom = document.getElementById('gtps-entity-' + graphId);
     if (!chartDom) return;
-    var chart = echarts.init(chartDom, null, { renderer: 'canvas' });
+    var chart = echarts.init(chartDom, null, {
+      renderer: 'canvas',
+      width: chartDom.clientWidth || window.innerWidth || 900,
+      height: (_HEIGHT_)
+    });
 
     var option = {
     backgroundColor: '#0e1117',
@@ -363,7 +403,35 @@ _ENTITY_TEMPLATE = r"""<!DOCTYPE html>
   };
 
     chart.setOption(option);
-    window.addEventListener('resize', function(){ chart.resize(); });
+
+    // 强力自愈：通过 ResizeObserver 与多重定时器，保证 Tab 切换瞬间立即唤醒重绘
+    if (window.ResizeObserver) {
+      var ro = new ResizeObserver(function() {
+        if (chartDom.clientWidth > 0) {
+          chart.resize({
+            width: chartDom.clientWidth,
+            height: (_HEIGHT_)
+          });
+        }
+      });
+      ro.observe(chartDom);
+      ro.observe(document.body);
+    }
+
+    [150, 400, 800, 1500].forEach(function(delay) {
+      setTimeout(function() {
+        if (chart) {
+          chart.resize({
+            width: chartDom.clientWidth || window.innerWidth || 900,
+            height: (_HEIGHT_)
+          });
+        }
+      }, delay);
+    });
+
+    window.addEventListener('resize', function(){
+      if (chart) chart.resize();
+    });
   }
   initChart();
 })();
