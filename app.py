@@ -527,108 +527,155 @@ for _i, _node in enumerate(_sorted_nodes):
         """, unsafe_allow_html=True)
 
 
-# ---------------- 主面板：多维标签页 ----------------
+
+def _render_news_event_card(evt, snapshot):
+    """渲染带官方报道原文超链接与深度内参展开抽屉的新闻卡片。"""
+    domain_name = evt.domain.value if hasattr(evt.domain, "value") else str(evt.domain)
+    card_class = f"event-card event-card-{domain_name.lower()}"
+    affected_str = " | ".join([f"{k} ({'+' if v>0 else ''}{v:.2f})" for k, v in evt.affected_nodes.items()])
+
+    # 硬数据核验徽章
+    tag = getattr(evt, "cross_check_tag", None)
+    if tag is None or tag == "不在核验范围":
+        badge_html = ""
+    elif "资金已证实" in tag:
+        badge_html = (
+            '<div class="verify-badge-substantiate">'
+            '🛡️ 金融大资本已核实验证 · 判定为真实战略级冲击'
+            f'（关联资产：金价 {snapshot.get("hf_GC").change_pct:+.2f}% · 油价 {snapshot.get("hf_OIL").change_pct:+.2f}%）'
+            '</div>'
+            if snapshot.get("hf_GC") and snapshot.get("hf_OIL") else
+            '<div class="verify-badge-substantiate">🛡️ 金融大资本已核实验证 · 判定为真实战略级冲击</div>'
+        )
+    elif "资金未响应" in tag:
+        badge_html = (
+            '<div class="verify-badge-noise">'
+            '💨 市场反应冷淡 · 判定为外交舆论战'
+            f'（大宗资产涨跌幅 < 0.4%，金价 {snapshot.get("hf_GC").change_pct:+.2f}% · 油价 {snapshot.get("hf_OIL").change_pct:+.2f}%）'
+            '</div>'
+            if snapshot.get("hf_GC") and snapshot.get("hf_OIL") else
+            '<div class="verify-badge-noise">💨 市场反应冷淡 · 判定为外交舆论战</div>'
+        )
+    elif "核验失败" in tag:
+        badge_html = '<div class="verify-badge-missing">⚠️ 行情接口离线 · 无法进行真实性核验</div>'
+    else:
+        badge_html = '<div class="verify-badge-noise">⚖️ 资金观望 · 烈度维持</div>'
+
+    # 构造可点击的标题与原文跳转超链接
+    if getattr(evt, 'url', None) and str(evt.url).startswith('http'):
+        title_html = f'<a href="{evt.url}" target="_blank" rel="noopener noreferrer" style="color:#60a5fa; text-decoration:none; font-size:16px; font-weight:700; display:inline-block; margin: 8px 0 6px 0;">{evt.title} <span style="font-size:13px; color:#38bdf8; background:#1e293b; padding:2px 8px; border-radius:4px; margin-left:6px; font-weight:normal; border:1px solid #334155;">🔗 点击查看官方报道原文 ↗</span></a>'
+    else:
+        title_html = f'<div style="font-size:16px; font-weight:600; color:#f3f4f6; margin: 8px 0 4px 0;">{evt.title}</div>'
+
+    st.markdown(f"""
+    <div class="{card_class}">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <span class="badge" style="background:#2563eb; color:white;">{domain_name.upper()}</span>
+                <span style="color:#8fa0be; font-size:12px;">来源: {evt.source} · {evt.timestamp}</span>
+            </div>
+            <div style="color:#f59e0b; font-weight:bold; font-size:12px;">冲击烈度: {int(evt.impact_level*100)}%</div>
+        </div>
+        {title_html}
+        <div style="font-size:13px; color:#cbd5e1; line-height:1.6;">{evt.summary}</div>
+        <div style="margin-top:8px; font-size:12px; color:#60a5fa;">
+            🔗 传导关联变量: <code>{affected_str}</code>
+        </div>
+        {badge_html}
+    </div>
+    """, unsafe_allow_html=True)
+
+    with st.expander("📖 点击展开此事件详细情报内参与深度研判", expanded=False):
+        st.markdown(f"**📰 事件全称**：{evt.title}")
+        st.markdown(f"**📡 发布渠道**：`{evt.source}` &nbsp;|&nbsp; **发布时间**：`{evt.timestamp}` &nbsp;|&nbsp; **归属领域**：`{domain_name.upper()}`")
+        st.markdown(f"**📋 情报通报全文**：\n\n" + str(evt.summary))
+        st.markdown(f"**⚡ 核心因果传导路径**：`{affected_str}`")
+
+        btn_c1, btn_c2 = st.columns([1, 1])
+        with btn_c1:
+            if getattr(evt, 'url', None) and str(evt.url).startswith('http'):
+                st.link_button("🌐 点击跳转并阅读官方报道网页原文 ↗", evt.url, use_container_width=True)
+            else:
+                st.caption("该事件为自生/专线快讯，未关联外部公开 URL。")
+        with btn_c2:
+            if st.button("⚔️ 将此事件直接载入红蓝对抗圆桌", key=f"load_wargame_{evt.event_id}", use_container_width=True):
+                st.session_state.selected_wargame_event = evt.title
+                st.success("✅ 该事件已选定为红蓝圆桌对抗议题，请切换至「⚔️ 闭门峰会与红蓝对抗圆桌」模块！")
+
+
+# ---------------- 🎛️ 战略推演核心功能分类模块栏 ----------------
+st.markdown("<div style='margin-bottom:8px;font-size:13px;font-weight:700;color:#94a3b8;letter-spacing:0.5px;'>🎛️ <b>战略推演核心功能模块栏：</b></div>", unsafe_allow_html=True)
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📰 今日国际大事信息流 (Live Feed)",
-    "🧠 跨域因果网络与动态推演沙盘",
-    "🏛️ 虚拟战略闭门峰会 · 红蓝对抗圆桌",
-    "🔮 未来情景树概率推演与战略预警 (Forecast)",
-    "🪞 历史因果巨镜与反身性雷达 (Mirror)"
+    "📡 全球情报与多模态感知 (Intelligence)",
+    "🧠 因果拓扑与科学计算 (Causal & MATLAB)",
+    "⚔️ 闭门峰会与红蓝对抗圆桌 (War-Gaming)",
+    "🔮 未来情景树与概率预警 (Forecasting)",
+    "🪞 历史因果巨镜与反身性透视 (Mirror)"
 ])
 
-# ---------------- TAB 1: 国际大事信息流 ----------------
+# ---------------- TAB 1: 全球情报与多模态感知 ----------------
 with tab1:
-    st.markdown("#### 🌐 今日全球重大国际事件与多模态信号情报流")
-    st.caption("涵盖政治博弈、科技突破、能源电网、宏观经济等多源多模态信号")
+    st.markdown("#### 🌐 今日全球重大国际事件情报流")
+    st.caption("多源实时快讯捕获 · 点击直达官方权威报道 · 深度内参展开 · 一键载入红蓝对抗推演")
 
-    filter_domain = st.selectbox(
-        "按领域筛选：",
-        [
-            "全部领域",
-            "POLITICS (政治地缘与防务)",
-            "ECONOMY (宏观经济与金融)",
-            "TECHNOLOGY (前沿科技与AI)",
-            "ENERGY (能源资源与生态)",
-            "SOCIETY (社会文化与思潮)"
-        ]
-    )
+    # 分领域归纳
+    _domain_buckets = {
+        "ECONOMY": [e for e in events if (getattr(e.domain, "value", str(e.domain))).lower() == "economy"],
+        "CULTURE": [e for e in events if (getattr(e.domain, "value", str(e.domain))).lower() in ["society", "ecology"]],
+        "POLITICS": [e for e in events if (getattr(e.domain, "value", str(e.domain))).lower() == "politics"],
+        "TECHNOLOGY": [e for e in events if (getattr(e.domain, "value", str(e.domain))).lower() == "technology"],
+        "ENERGY": [e for e in events if (getattr(e.domain, "value", str(e.domain))).lower() == "energy"],
+    }
 
-    for evt in events:
-        domain_name = evt.domain.value if hasattr(evt.domain, "value") else str(evt.domain)
-        if filter_domain != "全部领域" and domain_name.upper() not in filter_domain:
-            continue
+    # 领域专属分类栏
+    st.markdown("<div style='font-size:13px;font-weight:700;color:#94a3b8;margin:12px 0 8px 0;'>📰 <b>新闻情报领域分类栏：</b></div>", unsafe_allow_html=True)
+    nt_all, nt_econ, nt_pol, nt_tech, nt_energy, nt_cul = st.tabs([
+        f"🌐 全部要闻 ({len(events)})",
+        f"💰 宏观经济与金融 ({len(_domain_buckets['ECONOMY'])})",
+        f"🏛️ 政治地缘与防务 ({len(_domain_buckets['POLITICS'])})",
+        f"🔬 前沿科技与AI ({len(_domain_buckets['TECHNOLOGY'])})",
+        f"⚡ 能源资源与生态 ({len(_domain_buckets['ENERGY'])})",
+        f"🎭 社会文化与思潮 ({len(_domain_buckets['CULTURE'])})"
+    ])
 
-        card_class = f"event-card event-card-{domain_name.lower()}"
-        affected_str = " | ".join([f"{k} ({'+' if v>0 else ''}{v:.2f})" for k, v in evt.affected_nodes.items()])
+    with nt_all:
+        for evt in events:
+            _render_news_event_card(evt, snapshot)
 
-        # ---- 硬数据核验徽章 ----
-        tag = getattr(evt, "cross_check_tag", None)
-        if tag is None or tag == "不在核验范围":
-            badge_html = ""
-        elif "资金已证实" in tag:
-            badge_html = (
-                '<div class="verify-badge-substantiate">'
-                '🛡️ 金融大资本已核实验证 · 判定为真实战略级冲击'
-                f'（关联资产：金价 {snapshot.get("hf_GC").change_pct:+.2f}% · 油价 {snapshot.get("hf_OIL").change_pct:+.2f}%）'
-                '</div>'
-                if snapshot.get("hf_GC") and snapshot.get("hf_OIL") else
-                '<div class="verify-badge-substantiate">🛡️ 金融大资本已核实验证 · 判定为真实战略级冲击</div>'
-            )
-        elif "资金未响应" in tag:
-            badge_html = (
-                '<div class="verify-badge-noise">'
-                '💨 市场反应冷淡 · 判定为外交舆论战'
-                f'（大宗资产涨跌幅 < 0.4%，金价 {snapshot.get("hf_GC").change_pct:+.2f}% · 油价 {snapshot.get("hf_OIL").change_pct:+.2f}%）'
-                '</div>'
-                if snapshot.get("hf_GC") and snapshot.get("hf_OIL") else
-                '<div class="verify-badge-noise">💨 市场反应冷淡 · 判定为外交舆论战</div>'
-            )
-        elif "核验失败" in tag:
-            badge_html = '<div class="verify-badge-missing">⚠️ 行情接口离线 · 无法进行真实性核验</div>'
+    with nt_econ:
+        if _domain_buckets["ECONOMY"]:
+            for evt in _domain_buckets["ECONOMY"]:
+                _render_news_event_card(evt, snapshot)
         else:
-            badge_html = '<div class="verify-badge-noise">⚖️ 资金观望 · 烈度维持</div>'
+            st.info("今日暂无捕获到宏观经济维度的突发异动。")
 
-        # 构造可点击的标题与原文跳转超链接
-        if getattr(evt, 'url', None) and str(evt.url).startswith('http'):
-            title_html = f'<a href="{evt.url}" target="_blank" rel="noopener noreferrer" style="color:#60a5fa; text-decoration:none; font-size:16px; font-weight:700; display:inline-block; margin: 8px 0 6px 0;">{evt.title} <span style="font-size:13px; color:#38bdf8; background:#1e293b; padding:2px 8px; border-radius:4px; margin-left:6px; font-weight:normal; border:1px solid #334155;">🔗 点击查看官方报道原文 ↗</span></a>'
+    with nt_pol:
+        if _domain_buckets["POLITICS"]:
+            for evt in _domain_buckets["POLITICS"]:
+                _render_news_event_card(evt, snapshot)
         else:
-            title_html = f'<div style="font-size:16px; font-weight:600; color:#f3f4f6; margin: 8px 0 4px 0;">{evt.title}</div>'
+            st.info("今日暂无捕获到政治防务维度的突发异动。")
 
-        st.markdown(f"""
-        <div class="{card_class}">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <span class="badge" style="background:#2563eb; color:white;">{domain_name.upper()}</span>
-                    <span style="color:#8fa0be; font-size:12px;">来源: {evt.source} · {evt.timestamp}</span>
-                </div>
-                <div style="color:#f59e0b; font-weight:bold; font-size:12px;">冲击烈度: {int(evt.impact_level*100)}%</div>
-            </div>
-            {title_html}
-            <div style="font-size:13px; color:#cbd5e1; line-height:1.6;">{evt.summary}</div>
-            <div style="margin-top:8px; font-size:12px; color:#60a5fa;">
-                🔗 传导关联变量: <code>{affected_str}</code>
-            </div>
-            {badge_html}
-        </div>
-        """, unsafe_allow_html=True)
+    with nt_tech:
+        if _domain_buckets["TECHNOLOGY"]:
+            for evt in _domain_buckets["TECHNOLOGY"]:
+                _render_news_event_card(evt, snapshot)
+        else:
+            st.info("今日暂无捕获到前沿科技维度的突发异动。")
 
-        # 提供直接在页面内展开查看详细情报内参的抽屉
-        with st.expander(f"📖 点击展开此事件详细情报内参与深度研判", expanded=False):
-            st.markdown(f"**📰 事件全称**：{evt.title}")
-            st.markdown(f"**📡 发布渠道**：`{evt.source}` &nbsp;|&nbsp; **发布时间**：`{evt.timestamp}` &nbsp;|&nbsp; **归属领域**：`{domain_name.upper()}`")
-            st.markdown(f"**📋 情报通报全文**：\n\n" + str(evt.summary))
-            st.markdown(f"**⚡ 核心因果传导路径**：`{affected_str}`")
-            
-            btn_col1, btn_col2 = st.columns([1, 1])
-            with btn_col1:
-                if getattr(evt, 'url', None) and str(evt.url).startswith('http'):
-                    st.link_button("🌐 点击跳转并阅读官方报道网页原文 ↗", evt.url, use_container_width=True)
-                else:
-                    st.caption("该事件为自生/专线快讯，未关联外部公开 URL。")
-            with btn_col2:
-                if st.button("⚔️ 将此事件直接载入红蓝对抗圆桌", key=f"load_wargame_{evt.event_id}", use_container_width=True):
-                    st.session_state.selected_wargame_event = evt.title
-                    st.success("✅ 该事件已选定为红蓝圆桌对抗议题，请切换至 Tab 3 展开推演！")
+    with nt_energy:
+        if _domain_buckets["ENERGY"]:
+            for evt in _domain_buckets["ENERGY"]:
+                _render_news_event_card(evt, snapshot)
+        else:
+            st.info("今日暂无捕获到能源资源维度的突发异动。")
+
+    with nt_cul:
+        if _domain_buckets["CULTURE"]:
+            for evt in _domain_buckets["CULTURE"]:
+                _render_news_event_card(evt, snapshot)
+        else:
+            st.info("今日暂无捕获到社会文化维度的突发异动。")
 
 
 # ---------------- TAB 2: 因果网络与系统动力学 ----------------
