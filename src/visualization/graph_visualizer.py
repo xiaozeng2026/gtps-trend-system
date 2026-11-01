@@ -31,9 +31,9 @@ _DOMAIN_COLOR_MAP: Dict[str, str] = {
 # ---------------------------------------------------------------------------
 # 国内极速多通道 CDN 容灾保障（ECharts 5.5.0 稳定版）
 # ---------------------------------------------------------------------------
-_ECHARTS_CDN_PRIMARY = "https://lib.baomitu.com/echarts/5.5.0/echarts.min.js"
-_ECHARTS_CDN_FALLBACK = "https://registry.npmmirror.com/echarts/5.5.0/files/dist/echarts.min.js"
-_ECHARTS_CDN_OVERSEA = "https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"
+_ECHARTS_CDN_PRIMARY = "https://registry.npmmirror.com/echarts/5.5.0/files/dist/echarts.min.js"
+_ECHARTS_CDN_FALLBACK = "https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"
+_ECHARTS_CDN_OVERSEA = "https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"
 
 
 # ---------------------------------------------------------------------------
@@ -92,7 +92,7 @@ _CAUSAL_TEMPLATE = r"""<!DOCTYPE html>
     <div class="gtps-title">GTPS 因果拓扑图谱 <span>Force-directed · 拖拽平移 · 滚轮缩放</span></div>
     <div id="gtps-graph-legend-{{GRAPH_ID}}" class="gtps-graph-legend"></div>
   </div>
-  <div id="gtps-graph-{{GRAPH_ID}}"></div>
+  <div id="gtps-graph-{{GRAPH_ID}}" style="width:100%;height:(_HEIGHT_)px;min-height:480px;"></div>
 </div>
 <script src="(_ECHARTS_CDN_PRIMARY_)" onerror="this.onerror=null;this.src='(_ECHARTS_CDN_FALLBACK_)';"></script>
 <script>
@@ -126,8 +126,16 @@ _CAUSAL_TEMPLATE = r"""<!DOCTYPE html>
     legendDom.appendChild(item);
   });
 
+  var retryCount = 0;
   function initChart() {
     if (typeof echarts === 'undefined') {
+      retryCount++;
+      if (retryCount === 20) {
+        // 如果 2 秒内 primary CDN 未就绪，动态注入备用 CDN
+        var fbScript = document.createElement('script');
+        fbScript.src = '(_ECHARTS_CDN_FALLBACK_)';
+        document.head.appendChild(fbScript);
+      }
       setTimeout(initChart, 100);
       return;
     }
