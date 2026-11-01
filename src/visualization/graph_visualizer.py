@@ -166,6 +166,27 @@ _CAUSAL_TEMPLATE = r"""<!DOCTYPE html>
       height: initHeight
     });
 
+    // 动态生成 categories 列表（ECharts graph 在节点带 category 时必须在 series.categories 中显式定义）
+    var categories = Object.keys(legendColors).map(function(k){ return { name: k }; });
+    nodes.forEach(function(n){
+      if (n.category && !categories.some(function(c){ return c.name === n.category; })) {
+        categories.push({ name: n.category });
+      }
+    });
+
+    // 赋予节点初始环形散布坐标，避免力导向初始全聚于原点或 NaN
+    var cx = initWidth / 2;
+    var cy = initHeight / 2;
+    var totalNodes = nodes.length || 1;
+    nodes.forEach(function(n, i){
+      if (typeof n.x === 'undefined' || isNaN(n.x)) {
+        var angle = (i / totalNodes) * 2 * Math.PI;
+        var r = Math.min(cx, cy) * 0.52;
+        n.x = cx + r * Math.cos(angle);
+        n.y = cy + r * Math.sin(angle);
+      }
+    });
+
     var option = {
     backgroundColor: '#0e1117',
     tooltip: {
@@ -175,8 +196,8 @@ _CAUSAL_TEMPLATE = r"""<!DOCTYPE html>
       appendToBody: true,
       formatter: function(p){
         if(p.dataType === 'edge'){
-          var src = nodes.find(function(n){ return n.id === p.data.source; });
-          var tgt = nodes.find(function(n){ return n.id === p.data.target; });
+          var src = nodes.find(function(n){ return n.id === p.data.source || n.name === p.data.source; });
+          var tgt = nodes.find(function(n){ return n.id === p.data.target || n.name === p.data.target; });
           var wStr = (p.data.weight > 0 ? '+' : '') + p.data.weight.toFixed(2);
           var wClass = p.data.weight >= 0 ? '#10b981' : '#ef4444';
           var html = '<div class="gtps-tp-name">'+(src?src.name:p.data.source)+' → '+(tgt?tgt.name:p.data.target)+'</div>';
@@ -203,6 +224,7 @@ _CAUSAL_TEMPLATE = r"""<!DOCTYPE html>
       name: '因果拓扑',
       type: 'graph',
       layout: 'force',
+      categories: categories,
       data: nodes,
       links: links,
       roam: true,
@@ -329,10 +351,31 @@ _ENTITY_TEMPLATE = r"""<!DOCTYPE html>
     }
     var chartDom = document.getElementById('gtps-entity-' + graphId);
     if (!chartDom) return;
+    var initWidth = chartDom.clientWidth || window.innerWidth || 900;
+    var initHeight = (_HEIGHT_);
     var chart = echarts.init(chartDom, null, {
       renderer: 'canvas',
-      width: chartDom.clientWidth || window.innerWidth || 900,
-      height: (_HEIGHT_)
+      width: initWidth,
+      height: initHeight
+    });
+
+    var categoryMap = {};
+    nodes.forEach(function(n){
+      if (n.category) categoryMap[n.category] = true;
+    });
+    var categories = Object.keys(categoryMap).map(function(k){ return { name: k }; });
+    if (categories.length === 0) categories = [{ name: 'DEFAULT' }];
+
+    var cx = initWidth / 2;
+    var cy = initHeight / 2;
+    var totalNodes = nodes.length || 1;
+    nodes.forEach(function(n, i){
+      if (typeof n.x === 'undefined' || isNaN(n.x)) {
+        var angle = (i / totalNodes) * 2 * Math.PI;
+        var r = Math.min(cx, cy) * 0.52;
+        n.x = cx + r * Math.cos(angle);
+        n.y = cy + r * Math.sin(angle);
+      }
     });
 
     var option = {
@@ -344,8 +387,8 @@ _ENTITY_TEMPLATE = r"""<!DOCTYPE html>
       appendToBody: true,
       formatter: function(p){
         if(p.dataType === 'edge'){
-          var src = nodes.find(function(n){ return n.id === p.data.source; });
-          var tgt = nodes.find(function(n){ return n.id === p.data.target; });
+          var src = nodes.find(function(n){ return n.id === p.data.source || n.name === p.data.source; });
+          var tgt = nodes.find(function(n){ return n.id === p.data.target || n.name === p.data.target; });
           var html = '<div class="tp-name">'+(src?src.name:p.data.source)+' ⇄ '+(tgt?tgt.name:p.data.target)+'</div>';
           return html;
         } else {
@@ -370,6 +413,7 @@ _ENTITY_TEMPLATE = r"""<!DOCTYPE html>
       name: '事件-实体关联',
       type: 'graph',
       layout: 'force',
+      categories: categories,
       data: nodes,
       links: links,
       roam: true,
