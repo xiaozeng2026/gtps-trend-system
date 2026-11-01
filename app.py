@@ -584,6 +584,12 @@ with tab1:
         else:
             badge_html = '<div class="verify-badge-noise">⚖️ 资金观望 · 烈度维持</div>'
 
+        # 构造可点击的标题与原文跳转超链接
+        if getattr(evt, 'url', None) and str(evt.url).startswith('http'):
+            title_html = f'<a href="{evt.url}" target="_blank" rel="noopener noreferrer" style="color:#60a5fa; text-decoration:none; font-size:16px; font-weight:700; display:inline-block; margin: 8px 0 6px 0;">{evt.title} <span style="font-size:13px; color:#38bdf8; background:#1e293b; padding:2px 8px; border-radius:4px; margin-left:6px; font-weight:normal; border:1px solid #334155;">🔗 点击查看官方报道原文 ↗</span></a>'
+        else:
+            title_html = f'<div style="font-size:16px; font-weight:600; color:#f3f4f6; margin: 8px 0 4px 0;">{evt.title}</div>'
+
         st.markdown(f"""
         <div class="{card_class}">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -593,14 +599,32 @@ with tab1:
                 </div>
                 <div style="color:#f59e0b; font-weight:bold; font-size:12px;">冲击烈度: {int(evt.impact_level*100)}%</div>
             </div>
-            <div style="font-size:16px; font-weight:600; color:#f3f4f6; margin: 8px 0 4px 0;">{evt.title}</div>
-            <div style="font-size:13px; color:#9ca3af; line-height:1.5;">{evt.summary}</div>
+            {title_html}
+            <div style="font-size:13px; color:#cbd5e1; line-height:1.6;">{evt.summary}</div>
             <div style="margin-top:8px; font-size:12px; color:#60a5fa;">
                 🔗 传导关联变量: <code>{affected_str}</code>
             </div>
             {badge_html}
         </div>
         """, unsafe_allow_html=True)
+
+        # 提供直接在页面内展开查看详细情报内参的抽屉
+        with st.expander(f"📖 点击展开此事件详细情报内参与深度研判", expanded=False):
+            st.markdown(f"**📰 事件全称**：{evt.title}")
+            st.markdown(f"**📡 发布渠道**：`{evt.source}` &nbsp;|&nbsp; **发布时间**：`{evt.timestamp}` &nbsp;|&nbsp; **归属领域**：`{domain_name.upper()}`")
+            st.markdown(f"**📋 情报通报全文**：\n\n" + str(evt.summary))
+            st.markdown(f"**⚡ 核心因果传导路径**：`{affected_str}`")
+            
+            btn_col1, btn_col2 = st.columns([1, 1])
+            with btn_col1:
+                if getattr(evt, 'url', None) and str(evt.url).startswith('http'):
+                    st.link_button("🌐 点击跳转并阅读官方报道网页原文 ↗", evt.url, use_container_width=True)
+                else:
+                    st.caption("该事件为自生/专线快讯，未关联外部公开 URL。")
+            with btn_col2:
+                if st.button("⚔️ 将此事件直接载入红蓝对抗圆桌", key=f"load_wargame_{evt.event_id}", use_container_width=True):
+                    st.session_state.selected_wargame_event = evt.title
+                    st.success("✅ 该事件已选定为红蓝圆桌对抗议题，请切换至 Tab 3 展开推演！")
 
 
 # ---------------- TAB 2: 因果网络与系统动力学 ----------------
@@ -724,7 +748,15 @@ with tab3:
     with op1:
         evt_options = {e.title: e for e in events}
         if evt_options:
-            chosen_title = st.selectbox("🎯 选择圆桌对抗议题（源自今日捕获的真实国际要闻）：", list(evt_options.keys()))
+            _default_idx = 0
+            _pre = st.session_state.get("selected_wargame_event")
+            if _pre and _pre in evt_options:
+                _default_idx = list(evt_options.keys()).index(_pre)
+            chosen_title = st.selectbox(
+                "🎯 选择圆桌对抗议题（源自今日捕获的真实国际要闻）：",
+                list(evt_options.keys()),
+                index=_default_idx,
+            )
             chosen_evt = evt_options[chosen_title]
             st.caption(f"议题背景：{chosen_evt.summary}")
         else:
