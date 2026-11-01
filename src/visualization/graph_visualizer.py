@@ -29,10 +29,11 @@ _DOMAIN_COLOR_MAP: Dict[str, str] = {
 
 
 # ---------------------------------------------------------------------------
-# 双 CDN 备用保障（ECharts 5.5 稳定版）
+# 国内极速多通道 CDN 容灾保障（ECharts 5.5.0 稳定版）
 # ---------------------------------------------------------------------------
-_ECHARTS_CDN_PRIMARY = "https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"
-_ECHARTS_CDN_FALLBACK = "https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"
+_ECHARTS_CDN_PRIMARY = "https://lib.baomitu.com/echarts/5.5.0/echarts.min.js"
+_ECHARTS_CDN_FALLBACK = "https://registry.npmmirror.com/echarts/5.5.0/files/dist/echarts.min.js"
+_ECHARTS_CDN_OVERSEA = "https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"
 
 
 # ---------------------------------------------------------------------------
@@ -44,56 +45,56 @@ _CAUSAL_TEMPLATE = r"""<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  html, body { margin:0; padding:0; height:100%; background:#0e1117; }
-  #gtps-graph-{{GRAPH_ID}} { width:100%; height:100%; }
-  .gtps-graph-legend {
-    position:absolute; top:10px; right:12px; z-index:10;
-    display:flex; gap:6px; flex-wrap:wrap; max-width:65%; justify-content:flex-end;
-    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  html, body { margin:0; padding:0; height:100%; background:#0e1117; font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
+  .gtps-container { display:flex; flex-direction:column; width:100%; height:100%; background:#0e1117; }
+  .gtps-toolbar {
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
+    padding:8px 14px; background:rgba(22,27,34,0.75); border-bottom:1px solid rgba(255,255,255,0.08);
+    gap:8px;
   }
-  @media (max-width: 768px) {
-    .gtps-title { font-size:11px !important; max-width:45% !important; }
-    .gtps-title span { display:none !important; }
-    .gtps-graph-legend { max-width:52% !important; gap:4px !important; }
-    .gtps-lg-item { padding:2px 6px !important; font-size:10px !important; }
+  .gtps-title {
+    color:#e6edf3; font-size:13px; font-weight:700; letter-spacing:0.04em;
+    display:flex; align-items:center; gap:8px; flex-shrink:0;
+  }
+  .gtps-title span { color:#8b949e; font-weight:400; font-size:11px; }
+  .gtps-graph-legend {
+    display:flex; gap:6px; flex-wrap:wrap; align-items:center; justify-content:flex-end;
   }
   .gtps-lg-item {
-    display:flex; align-items:center; gap:6px;
-    background:rgba(255,255,255,0.04);
-    border:1px solid rgba(255,255,255,0.10);
-    padding:4px 10px; border-radius:4px; font-size:11px; color:#c9d1d9;
+    display:inline-flex !important; align-items:center; gap:5px; width:auto !important; flex:0 0 auto !important;
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+    padding:3px 8px; border-radius:4px; font-size:11px; color:#c9d1d9; white-space:nowrap;
   }
-  .gtps-lg-dot { width:10px; height:10px; border-radius:50%; }
-  .gtps-title {
-    position:absolute; top:12px; left:16px; z-index:10;
-    color:#e6edf3; font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;
-    font-size:13px; font-weight:700; letter-spacing:0.06em;
+  .gtps-lg-dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+  #gtps-graph-{{GRAPH_ID}} { width:100%; height:(_HEIGHT_)px; background:#0e1117; }
+  @media (max-width: 768px) {
+    .gtps-toolbar { padding:6px 10px; }
+    .gtps-title { font-size:12px; }
+    .gtps-title span { display:none; }
+    .gtps-lg-item { padding:2px 6px; font-size:10px; }
   }
-  .gtps-title span { color:#8b949e; font-weight:400; margin-left:8px; font-size:11px; }
   .echarts-tooltip {
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;
-    background:rgba(22,27,34,0.96) !important;
-    border:1px solid rgba(139,148,158,0.25) !important;
-    border-radius:8px !important;
-    box-shadow:0 6px 20px rgba(0,0,0,0.55) !important;
-    padding:14px 18px !important;
-    color:#e6edf3 !important;
-    max-width:340px !important;
+    background:rgba(22,27,34,0.96) !important; border:1px solid rgba(139,148,158,0.25) !important;
+    border-radius:8px !important; box-shadow:0 6px 20px rgba(0,0,0,0.55) !important;
+    padding:12px 16px !important; color:#e6edf3 !important; max-width:320px !important;
     backdrop-filter:blur(10px);
   }
-  .echarts-tooltip .gtps-tp-name { font-size:14px; font-weight:700; margin-bottom:8px; color:#ffffff; }
-  .echarts-tooltip .gtps-tp-row { font-size:12px; color:#c9d1d9; margin:3px 0; line-height:1.55; }
+  .echarts-tooltip .gtps-tp-name { font-size:13px; font-weight:700; margin-bottom:6px; color:#ffffff; }
+  .echarts-tooltip .gtps-tp-row { font-size:12px; color:#c9d1d9; margin:2px 0; line-height:1.5; }
   .echarts-tooltip .gtps-tp-row b { color:#8b949e; font-weight:600; margin-right:6px; }
-  .echarts-tooltip .gtps-tp-desc { margin-top:10px; padding-top:10px; border-top:1px dashed rgba(139,148,158,0.25); font-size:12px; color:#a9b1bd; line-height:1.6; }
+  .echarts-tooltip .gtps-tp-desc { margin-top:8px; padding-top:8px; border-top:1px dashed rgba(139,148,158,0.25); font-size:11px; color:#a9b1bd; line-height:1.5; }
 </style>
 </head>
 <body>
-<div style="position:relative;width:100%;height:100%;">
-  <div class="gtps-title">GTPS 因果拓扑图谱 <span>Force-directed · 拖拽平移 · 滚轮缩放</span></div>
-  <div id="gtps-graph-legend-{{GRAPH_ID}}" class="gtps-graph-legend"></div>
-  <div id="gtps-graph-{{GRAPH_ID}}" style="width:100%;height:(_HEIGHT_)px;"></div>
+<div class="gtps-container">
+  <div class="gtps-toolbar">
+    <div class="gtps-title">GTPS 因果拓扑图谱 <span>Force-directed · 拖拽平移 · 滚轮缩放</span></div>
+    <div id="gtps-graph-legend-{{GRAPH_ID}}" class="gtps-graph-legend"></div>
+  </div>
+  <div id="gtps-graph-{{GRAPH_ID}}"></div>
 </div>
-<script src="(_ECHARTS_CDN_PRIMARY_)" onerror="this.src='(_ECHARTS_CDN_FALLBACK_)'"></script>
+<script src="(_ECHARTS_CDN_PRIMARY_)" onerror="this.onerror=null;this.src='(_ECHARTS_CDN_FALLBACK_)';"></script>
 <script>
 (function(){
   var graphId = '{{GRAPH_ID}}';
@@ -125,9 +126,16 @@ _CAUSAL_TEMPLATE = r"""<!DOCTYPE html>
     legendDom.appendChild(item);
   });
 
-  var chart = echarts.init(document.getElementById('gtps-graph-'+graphId), null, { renderer: 'canvas' });
+  function initChart() {
+    if (typeof echarts === 'undefined') {
+      setTimeout(initChart, 100);
+      return;
+    }
+    var chartDom = document.getElementById('gtps-graph-' + graphId);
+    if (!chartDom) return;
+    var chart = echarts.init(chartDom, null, { renderer: 'canvas' });
 
-  var option = {
+    var option = {
     backgroundColor: '#0e1117',
     tooltip: {
       trigger: 'item',
@@ -198,9 +206,10 @@ _CAUSAL_TEMPLATE = r"""<!DOCTYPE html>
     }]
   };
 
-  chart.setOption(option);
-
-  window.addEventListener('resize', function(){ chart.resize(); });
+    chart.setOption(option);
+    window.addEventListener('resize', function(){ chart.resize(); });
+  }
+  initChart();
 })();
 </script>
 </body>
@@ -254,9 +263,16 @@ _ENTITY_TEMPLATE = r"""<!DOCTYPE html>
   var nodes  = (_DATA_NODES_);
   var links  = (_DATA_LINKS_);
 
-  var chart = echarts.init(document.getElementById('gtps-entity-'+graphId), null, { renderer: 'canvas' });
+  function initChart() {
+    if (typeof echarts === 'undefined') {
+      setTimeout(initChart, 100);
+      return;
+    }
+    var chartDom = document.getElementById('gtps-entity-' + graphId);
+    if (!chartDom) return;
+    var chart = echarts.init(chartDom, null, { renderer: 'canvas' });
 
-  var option = {
+    var option = {
     backgroundColor: '#0e1117',
     tooltip: {
       trigger: 'item',
@@ -323,8 +339,10 @@ _ENTITY_TEMPLATE = r"""<!DOCTYPE html>
     }]
   };
 
-  chart.setOption(option);
-  window.addEventListener('resize', function(){ chart.resize(); });
+    chart.setOption(option);
+    window.addEventListener('resize', function(){ chart.resize(); });
+  }
+  initChart();
 })();
 </script>
 </body>
