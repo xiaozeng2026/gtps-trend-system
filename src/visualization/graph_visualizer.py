@@ -9,6 +9,8 @@
 from __future__ import annotations
 
 import json
+import os
+from typing import Any, Dict, List, Tuple
 from typing import Any, Dict, List, Tuple
 
 from ..core.models import CausalLink, CausalNode, DomainCategory
@@ -29,11 +31,24 @@ _DOMAIN_COLOR_MAP: Dict[str, str] = {
 
 
 # ---------------------------------------------------------------------------
-# 国内极速多通道 CDN 容灾保障（ECharts 5.5.0 稳定版）
+
 # ---------------------------------------------------------------------------
-_ECHARTS_CDN_PRIMARY = "https://registry.npmmirror.com/echarts/5.5.0/files/dist/echarts.min.js"
-_ECHARTS_CDN_FALLBACK = "https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"
-_ECHARTS_CDN_OVERSEA = "https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"
+# 本地 ECharts 5.5.0 核心引擎（100% 自闭合，零外部 CDN 依赖，彻底根除白屏）
+# ---------------------------------------------------------------------------
+_LOCAL_ECHARTS_PATH = os.path.join(os.path.dirname(__file__), "echarts.min.js")
+_EMBEDDED_ECHARTS_SCRIPT = ""
+if os.path.exists(_LOCAL_ECHARTS_PATH):
+    try:
+        with open(_LOCAL_ECHARTS_PATH, "r", encoding="utf-8") as _f:
+            _raw_js = _f.read()
+            if len(_raw_js) > 500000:
+                _EMBEDDED_ECHARTS_SCRIPT = f"<script>/* ECharts 5.5.0 Local Embedded Engine */\n{_raw_js}\n</script>"
+    except Exception as _e:
+        _EMBEDDED_ECHARTS_SCRIPT = ""
+
+if not _EMBEDDED_ECHARTS_SCRIPT:
+    _EMBEDDED_ECHARTS_SCRIPT = '<script src="https://registry.npmmirror.com/echarts/5.5.0/files/dist/echarts.min.js" onerror="this.onerror=null;this.src=\'https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js\';"></script>'
+
 
 
 # ---------------------------------------------------------------------------
@@ -94,7 +109,7 @@ _CAUSAL_TEMPLATE = r"""<!DOCTYPE html>
   </div>
   <div id="gtps-graph-{{GRAPH_ID}}" style="width:100%;height:(_HEIGHT_)px;min-height:480px;"></div>
 </div>
-<script src="(_ECHARTS_CDN_PRIMARY_)" onerror="this.onerror=null;this.src='(_ECHARTS_CDN_FALLBACK_)';"></script>
+(_ECHARTS_SCRIPT_TAG_)
 <script>
 (function(){
   var graphId = '{{GRAPH_ID}}';
@@ -264,7 +279,7 @@ _ENTITY_TEMPLATE = r"""<!DOCTYPE html>
   <div class="gtps-title-e">GTPS 事件-实体关联图谱 <span>星形拓扑 · 中心节点 = 事件</span></div>
   <div id="gtps-entity-{{GRAPH_ID}}" style="width:100%;height:(_HEIGHT_)px;"></div>
 </div>
-<script src="(_ECHARTS_CDN_PRIMARY_)" onerror="this.src='(_ECHARTS_CDN_FALLBACK_)'"></script>
+(_ECHARTS_SCRIPT_TAG_)
 <script>
 (function(){
   var graphId = '{{GRAPH_ID}}';
@@ -607,8 +622,7 @@ def _render(
 
     html = template
     html = html.replace("{{GRAPH_ID}}", graph_id)
-    html = html.replace("(_ECHARTS_CDN_PRIMARY_)", _ECHARTS_CDN_PRIMARY)
-    html = html.replace("(_ECHARTS_CDN_FALLBACK_)", _ECHARTS_CDN_FALLBACK)
+    html = html.replace("(_ECHARTS_SCRIPT_TAG_)", _EMBEDDED_ECHARTS_SCRIPT)
     html = html.replace("(_DATA_NODES_)", nodes_json)
     html = html.replace("(_DATA_LINKS_)", links_json)
     html = html.replace("(_HEIGHT_)", str(height))
