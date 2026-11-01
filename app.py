@@ -127,6 +127,83 @@ st.markdown("""
         border-radius: 4px; padding: 4px 10px; font-size: 12px; font-weight: 600;
         border: 1px solid #92400e; margin-top: 8px;
     }
+
+    /* ===== 移动端专属响应式自适应布局 (@media max-width: 768px) ===== */
+    @media (max-width: 768px) {
+        /* 紧凑化内边距，释放屏幕空间 */
+        .block-container {
+            padding-top: 1.5rem !important;
+            padding-bottom: 2rem !important;
+            padding-left: 0.6rem !important;
+            padding-right: 0.6rem !important;
+        }
+        /* 行情胶囊与KPI指标卡：手机端转为双列紧凑自适应网格，不再横向挤扁成 6 列 */
+        div[data-testid="column"] {
+            min-width: 47% !important;
+            flex: 1 1 45% !important;
+            margin-bottom: 6px !important;
+        }
+        .market-pill {
+            padding: 8px 6px !important;
+            border-radius: 6px !important;
+        }
+        .market-pill div:nth-child(1) {
+            font-size: 10px !important;
+        }
+        .market-pill div:nth-child(2) {
+            font-size: 15px !important;
+        }
+        .market-pill div:nth-child(3) {
+            font-size: 11px !important;
+        }
+        .metric-card {
+            padding: 10px 12px !important;
+            margin-bottom: 8px !important;
+        }
+        .metric-title {
+            font-size: 11px !important;
+        }
+        .metric-value {
+            font-size: 20px !important;
+            margin-top: 2px !important;
+        }
+        .metric-delta {
+            font-size: 11px !important;
+        }
+        /* 图谱画布在手机端自适应舒适高度，避免滑屏阻断 */
+        iframe {
+            max-height: 400px !important;
+        }
+        /* 标签页横向滑动优化 */
+        .stTabs [data-baseweb="tab-list"] {
+            overflow-x: auto !important;
+            flex-wrap: nowrap !important;
+            padding-bottom: 6px !important;
+            scrollbar-width: thin;
+        }
+        .stTabs [data-baseweb="tab"] {
+            padding: 6px 12px !important;
+            font-size: 12px !important;
+            white-space: nowrap !important;
+        }
+    }
+    
+    /* 靶向质询问答专属样式 */
+    .inquiry-bubble {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border: 1px solid #3b82f6;
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin: 12px 0 16px 0;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    .inquiry-resp-card {
+        background-color: #111827;
+        border: 1px solid #1f293d;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 10px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -738,6 +815,120 @@ with tab3:
             st.markdown(result.briefing)
     else:
         st.info("尚未开启圆桌对抗。请在上方选择今日真实议题，点击「⚔️ 启动闭门圆桌对抗推演」。无 API Key 亦可完整体验（本地高保真参谋模板）。")
+
+
+    # ---------------- 🎯 人类战略观察员·定向对抗质询台 ----------------
+    st.markdown("---")
+    st.markdown("#### 🎯 人类战略观察员·定向对抗质询台")
+    st.caption("基于今日重大新闻与实时局势，由您直接提出具体战略设想、极端假设或针对性考验，由多方红蓝参谋部展开针锋相对的定向辩论攻防。")
+
+    if "targeted_inquiries" not in st.session_state:
+        st.session_state.targeted_inquiries = []
+
+    # 快捷灵感提问
+    _quick_prompts = [
+        "若某方突然实施关键供应链断供与技术封锁，各方将如何极限反制？",
+        "面对当前地缘动荡与通胀溢价，金融资本与产业资本将如何跨国套利与避险？",
+        "如果政府出台严苛能耗指标与惩罚性电价，科技巨头是否会加速外迁？"
+    ]
+
+    st.markdown("<div style='font-size:12px;color:#94a3b8;margin-bottom:6px;'>💡 <b>快速启发质询（点击一键带入）：</b></div>", unsafe_allow_html=True)
+    q_col1, q_col2, q_col3 = st.columns(3)
+    if q_col1.button(f"⚡ {_quick_prompts[0][:18]}...", use_container_width=True):
+        st.session_state.inquiry_input_val = _quick_prompts[0]
+    if q_col2.button(f"💰 {_quick_prompts[1][:18]}...", use_container_width=True):
+        st.session_state.inquiry_input_val = _quick_prompts[1]
+    if q_col3.button(f"🏛️ {_quick_prompts[2][:18]}...", use_container_width=True):
+        st.session_state.inquiry_input_val = _quick_prompts[2]
+
+    inquiry_default = st.session_state.get("inquiry_input_val", "")
+    
+    with st.form("targeted_inquiry_form", clear_on_submit=False):
+        user_question = st.text_area(
+            "💬 输入您对红蓝对抗参谋部的针对性质询问题：",
+            value=inquiry_default,
+            placeholder="例如：若某大国突然对海峡航道实施戒严，红方与蓝方分别会采取怎样的首轮和次轮战术反制？对油价和算力供应链有什么具体冲击？",
+            height=85
+        )
+        inq_sub_col1, inq_sub_col2 = st.columns([3, 1])
+        with inq_sub_col1:
+            st.caption(f"当前锚定背景事件：**{chosen_evt.title if chosen_evt else '全球地缘与产业宏观态势'}**")
+        with inq_sub_col2:
+            submit_inquiry = st.form_submit_button("⚔️ 发起针对性攻防辩论", use_container_width=True, type="primary")
+
+    if submit_inquiry and user_question.strip():
+        cfg = st.session_state.get("llm_config", {})
+        engine = LLMWarGameEngine(LLMClient(
+            api_key=cfg.get("api_key") or None,
+            base_url=cfg.get("base_url") or "https://api.deepseek.com/v1",
+            model_name=cfg.get("model_name") or "deepseek-chat",
+            timeout=45,
+        ))
+        
+        evt_t = chosen_evt.title if chosen_evt else "全球地缘与能源算力博弈态势"
+        evt_s = chosen_evt.summary if chosen_evt else "多主体围绕关键资源、基础设施、金融流动性与监管门槛展开博弈。"
+
+        with st.status("🎯 红蓝参谋部正在针对您的提问展开专项对抗推演...", expanded=True) as status:
+            inquiry_result = engine.run_targeted_inquiry(
+                event_title=evt_t,
+                event_summary=evt_s,
+                user_question=user_question.strip(),
+                available_nodes=list(nodes.keys()),
+                progress_cb=lambda msg: st.write(f"💬 {msg}")
+            )
+            status.update(label="🎯 针对性攻防对抗完成！各参谋部交锋决议已生成！", state="complete")
+
+        st.session_state.targeted_inquiries.insert(0, inquiry_result)
+        st.toast("🎯 定向质询对抗推演已生成！")
+        st.rerun()
+
+    # 渲染历史质询对话记录
+    if st.session_state.targeted_inquiries:
+        st.markdown("##### 📜 针对性质询对抗实况档案")
+        for idx, inq in enumerate(st.session_state.targeted_inquiries):
+            st.markdown(f"""
+            <div class="inquiry-bubble">
+                <div style="color:#60a5fa;font-size:12px;font-weight:700;letter-spacing:0.5px;">
+                    🎯 人类观察员质询 #{len(st.session_state.targeted_inquiries) - idx} · {inq.timestamp}
+                </div>
+                <div style="color:#ffffff;font-size:15px;font-weight:600;margin-top:6px;">
+                    "{inq.question}"
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # 各阵营发言
+            for pid, resp in inq.responses.items():
+                _faction_info = FACTION_STYLE.get(pid)
+                color, short = _faction_info if _faction_info else ("#6b7280", pid[:8])
+                _full_name = _theme_persona_dict.get(pid, {}).get("name") or PERSONAS.get(pid, {}).get("name", pid)
+                st.markdown(f"""
+                <div class="inquiry-resp-card" style="border-left:4px solid {color};">
+                    <div style="color:{color};font-weight:700;font-size:13px;margin-bottom:4px;">
+                        {short} · {_full_name}
+                    </div>
+                    <div style="color:#e5e7eb;font-size:14px;line-height:1.6;">{resp}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            # 综合研判
+            if inq.summary:
+                st.info(f"**🏛️ 参谋长联席研判总结：**\n\n" + inq.summary, icon="📊")
+
+            # 一键回填因果网络按钮
+            act_c1, act_c2 = st.columns([3, 1])
+            with act_c1:
+                st.caption(f"本项对抗共引申出 {len(inq.decisions)} 项战术冲击动作。")
+            with act_c2:
+                if st.button("⚡ 注入此质询战术到因果网络", key=f"apply_inq_{idx}", use_container_width=True):
+                    LLMWarGameEngine.apply_to_network(st.session_state.causal_net, inq.decisions)
+                    st.success("✅ 战术冲击已注入因果网络并传导重平衡！")
+                    st.rerun()
+
+        if st.button("🗑️ 清空历史质询记录", type="secondary"):
+            st.session_state.targeted_inquiries = []
+            st.rerun()
+
 
     # ---- 附录：传统规则引擎沙盒（保留快速压力测试能力） ----
     with st.expander("⚙️ 附：规则引擎四主体档案与自主反制记录（传统沙盒）", expanded=False):

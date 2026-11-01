@@ -151,6 +151,18 @@ def _vector_format_hint(available_nodes: tuple = DEFAULT_NODES) -> str:
 
 
 @dataclass
+class TargetedInquiryResult:
+    """人类战略观察员针对特定问题的专项对抗推演产出。"""
+    question: str
+    event_title: str
+    mode: str
+    responses: Dict[str, str] = field(default_factory=dict)
+    summary: str = ""
+    decisions: List[AgentDecision] = field(default_factory=list)
+    timestamp: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+
+@dataclass
 class WarGameResult:
     """一场红蓝对抗推演的完整产出。"""
     event_title: str
@@ -243,6 +255,68 @@ class LLMWarGameEngine:
     # ------------------------------------------------------------------ #
     # 将决议文本落地为对因果网络的干预（供外部编排层调用）
     # ------------------------------------------------------------------ #
+
+    def run_targeted_inquiry(
+        self,
+        event_title: str,
+        event_summary: str,
+        user_question: str,
+        available_nodes: Optional[List[str]] = None,
+        progress_cb=None
+    ) -> TargetedInquiryResult:
+        """
+        人类观察员针对性对抗质询：
+        四大利益集团参谋部针对人类观察员提出的具体问题展开靶向对抗论证与反制辩论。
+        """
+        _valid_nodes = tuple(available_nodes) if available_nodes else DEFAULT_NODES
+        mode = "LIVE_LLM" if self.client.available else "BUILTIN_TEMPLATE"
+        inquiry = TargetedInquiryResult(
+            question=user_question,
+            event_title=event_title,
+            mode=mode
+        )
+
+        for pid, persona in PERSONAS.items():
+            if progress_cb:
+                progress_cb(f"【{persona['name']}】正在针对质询制定反制战术...")
+
+            p_name = persona["name"]
+            sys_prompt = persona["system_prompt"]
+            user_prompt = (
+                f"【背景事件】：{event_title}\n"
+                f"【事件详情】：{event_summary}\n\n"
+                f"【人类战略观察员定向质询】：\n"
+                f"『{user_question}』\n\n"
+                f"请以【{p_name}】的严正立场，就观察员的这一具体质询做出针锋相对的战略推演回答：\n"
+                f"1. 你方对此问题的核心研判与底线立场；\n"
+                f"2. 针对其他敌对/博弈阵营可能采取的举动，你方将采取何种针对性反制或利益置换；\n"
+                f"3. 给出 1 项具体执行举措（120 字以内，风格凌厉、数据化）。"
+            )
+
+            fallback = (
+                f"【{p_name} 靶向质询应答】\n"
+                f"针对观察员提出的『{user_question}』，我方研判此动向直接触及核心资产重估与利益红线。"
+                f"若局势向不利方向传导，我方将全面激活「{persona['action_name']}」预案，"
+                f"同时对利益冲突方实施战略钳制与交叉施压，确保在对抗博弈中牢牢锁死主动权。"
+            )
+
+            resp = self._speak(
+                pid,
+                user_prompt,
+                fallback,
+                json_mode=True,
+                valid_nodes=_valid_nodes
+            )
+            inquiry.responses[pid] = resp
+            inquiry.decisions.extend(self._to_decisions(pid, resp, valid_nodes=_valid_nodes))
+
+        inquiry.summary = (
+            f"针对质询『{user_question}』，四方参谋部对抗分歧主要集中于产业链重构、跨域流动性争夺与反制施压。"
+            f"科技方倾向于加速资本外迁与离网微电网注资；公共电网与社区防御方筑牢配额与环保许可门槛；"
+            f"能源寡头与地缘势力则利用现货基差与运力瓶颈进行强力对冲。全局进入高烈度战术博弈期。"
+        )
+        return inquiry
+
     @staticmethod
     def apply_to_network(causal_net, decisions: List[AgentDecision]) -> None:
         """把博弈决议的因果冲击向量注入既有 CausalNetwork 并完成再平衡传导。"""
