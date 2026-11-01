@@ -60,8 +60,8 @@ _CAUSAL_TEMPLATE = r"""<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  html, body { margin:0; padding:0; height:100%; background:#0e1117; font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
-  .gtps-container { display:flex; flex-direction:column; width:100%; height:100%; background:#0e1117; }
+  /* st.html 直接注入主文档，不依赖 iframe 百分比高度；用 min-height 确保容器可见 */
+  .gtps-container { display:flex; flex-direction:column; width:100%; min-height:(_HEIGHT_)px; background:#0e1117; font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
   .gtps-toolbar {
     display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
     padding:8px 14px; background:rgba(22,27,34,0.75); border-bottom:1px solid rgba(255,255,255,0.08);
@@ -285,8 +285,8 @@ _ENTITY_TEMPLATE = r"""<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  html, body { margin:0; padding:0; height:100%; background:#0e1117; }
-  #gtps-entity-{{GRAPH_ID}} { width:100%; height:100%; }
+  /* st.html 直接注入主文档，不依赖 iframe 百分比高度 */
+  #gtps-entity-{{GRAPH_ID}} { width:100%; height:(_HEIGHT_)px; background:#0e1117; }
   .gtps-title-e {
     position:absolute; top:12px; left:16px; z-index:10;
     color:#e6edf3; font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;

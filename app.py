@@ -718,6 +718,11 @@ with tab2:
             "绿色实线 = 正向强化，红色虚线 = 负向制约，线宽随传导强度变化。"
         )
 
+    # 修复 Streamlit 1.66 components.v1.html iframe 默认 display:inline 导致 height 不生效的问题
+    st.markdown(
+        "<style>iframe.stIFrame{display:block!important;width:100%!important;}</style>",
+        unsafe_allow_html=True,
+    )
     components.html(graph_html, height=graph_height + 12, scrolling=False)
 
     st.markdown("---")
