@@ -528,7 +528,7 @@ for _i, _node in enumerate(_sorted_nodes):
 
 
 
-def _render_news_event_card(evt, snapshot):
+def _render_news_event_card(evt, snapshot, prefix="all"):
     """渲染带官方报道原文超链接与深度内参展开抽屉的新闻卡片。"""
     domain_name = evt.domain.value if hasattr(evt.domain, "value") else str(evt.domain)
     card_class = f"event-card event-card-{domain_name.lower()}"
@@ -598,7 +598,7 @@ def _render_news_event_card(evt, snapshot):
             else:
                 st.caption("该事件为自生/专线快讯，未关联外部公开 URL。")
         with btn_c2:
-            if st.button("⚔️ 将此事件直接载入红蓝对抗圆桌", key=f"load_wargame_{evt.event_id}", use_container_width=True):
+            if st.button("⚔️ 将此事件直接载入红蓝对抗圆桌", key=f"load_wargame_{prefix}_{evt.event_id}", use_container_width=True):
                 st.session_state.selected_wargame_event = evt.title
                 st.success("✅ 该事件已选定为红蓝圆桌对抗议题，请切换至「⚔️ 闭门峰会与红蓝对抗圆桌」模块！")
 
@@ -640,40 +640,40 @@ with tab1:
 
     with nt_all:
         for evt in events:
-            _render_news_event_card(evt, snapshot)
+            _render_news_event_card(evt, snapshot, prefix="all")
 
     with nt_econ:
         if _domain_buckets["ECONOMY"]:
             for evt in _domain_buckets["ECONOMY"]:
-                _render_news_event_card(evt, snapshot)
+                _render_news_event_card(evt, snapshot, prefix="econ")
         else:
             st.info("今日暂无捕获到宏观经济维度的突发异动。")
 
     with nt_pol:
         if _domain_buckets["POLITICS"]:
             for evt in _domain_buckets["POLITICS"]:
-                _render_news_event_card(evt, snapshot)
+                _render_news_event_card(evt, snapshot, prefix="pol")
         else:
             st.info("今日暂无捕获到政治防务维度的突发异动。")
 
     with nt_tech:
         if _domain_buckets["TECHNOLOGY"]:
             for evt in _domain_buckets["TECHNOLOGY"]:
-                _render_news_event_card(evt, snapshot)
+                _render_news_event_card(evt, snapshot, prefix="tech")
         else:
             st.info("今日暂无捕获到前沿科技维度的突发异动。")
 
     with nt_energy:
         if _domain_buckets["ENERGY"]:
             for evt in _domain_buckets["ENERGY"]:
-                _render_news_event_card(evt, snapshot)
+                _render_news_event_card(evt, snapshot, prefix="energy")
         else:
             st.info("今日暂无捕获到能源资源维度的突发异动。")
 
     with nt_cul:
         if _domain_buckets["CULTURE"]:
             for evt in _domain_buckets["CULTURE"]:
-                _render_news_event_card(evt, snapshot)
+                _render_news_event_card(evt, snapshot, prefix="cul")
         else:
             st.info("今日暂无捕获到社会文化维度的突发异动。")
 

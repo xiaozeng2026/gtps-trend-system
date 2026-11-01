@@ -46,10 +46,16 @@ _CAUSAL_TEMPLATE = r"""<!DOCTYPE html>
 <style>
   html, body { margin:0; padding:0; height:100%; background:#0e1117; }
   #gtps-graph-{{GRAPH_ID}} { width:100%; height:100%; }
-  #gtps-graph-{{GRAPH_ID}}-legend {
-    position:absolute; top:12px; right:12px; z-index:10;
-    display:flex; gap:8px; flex-wrap:wrap; max-width:60%;
+  .gtps-graph-legend {
+    position:absolute; top:10px; right:12px; z-index:10;
+    display:flex; gap:6px; flex-wrap:wrap; max-width:65%; justify-content:flex-end;
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  }
+  @media (max-width: 768px) {
+    .gtps-title { font-size:11px !important; max-width:45% !important; }
+    .gtps-title span { display:none !important; }
+    .gtps-graph-legend { max-width:52% !important; gap:4px !important; }
+    .gtps-lg-item { padding:2px 6px !important; font-size:10px !important; }
   }
   .gtps-lg-item {
     display:flex; align-items:center; gap:6px;
