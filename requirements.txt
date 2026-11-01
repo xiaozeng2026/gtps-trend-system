@@ -22,3 +22,7 @@ streamlit>=1.30.0
 
 # 全球新闻流 (RSS/Atom) 解析
 feedparser>=6.0.0
+
+# 科学计算与出版级出图 (MATLAB 联动)
+matplotlib>=3.7.0
+numpy>=1.24.0

@@ -32,6 +32,10 @@ from src.visualization.graph_visualizer import (
     render_causal_graph_html,
     render_entity_knowledge_graph_html,
 )
+from src.visualization.matlab_bridge import (
+    generate_matlab_script,
+    render_matlab_style_figure,
+)
 
 # 页面基础配置
 st.set_page_config(
@@ -709,6 +713,43 @@ with tab2:
                 use_container_width=True,
                 hide_index=True,
             )
+
+
+    # ---------------- 📐 MATLAB 科学计算与系统动力学联动工作台 ----------------
+    st.markdown("---")
+    st.markdown("#### 📐 MATLAB 科学计算与系统动力学联动工作台")
+    st.caption("与 MATLAB / Octave 矩阵计算无缝联动 · 导出可直接运行的 ODE45 动力学仿真脚本与出版级学术相图")
+
+    matlab_tab1, matlab_tab2 = st.tabs(["📊 MATLAB 风格动力学演化相图", "💻 导出 MATLAB 原生仿真模型 (.m)"])
+
+    with matlab_tab1:
+        with st.spinner("正在基于当前因果拓扑矩阵求解 MATLAB ODE 动力学微分方程并渲染出版级相图..."):
+            fig_bytes = render_matlab_style_figure(st.session_state.causal_net)
+            if fig_bytes:
+                st.image(fig_bytes, caption="GTPS × MATLAB 系统动力学连续时域轨迹 (ODE45 RK4) 与特征值稳定性相平面图", use_container_width=True)
+                st.download_button(
+                    label="📥 下载 MATLAB 出版级高分辨率高清仿真图 (PNG)",
+                    data=fig_bytes,
+                    file_name="gtps_matlab_dynamics_figure.png",
+                    mime="image/png",
+                    use_container_width=True
+                )
+
+    with matlab_tab2:
+        m_code = generate_matlab_script(st.session_state.causal_net)
+        m_col1, m_col2 = st.columns([3, 1])
+        with m_col1:
+            st.caption("当前因果拓扑已全自动编译为标准 MATLAB 语法脚本，包含 digraph 网络图论、ode45 微分方程求解与 eig 稳定性判定。")
+        with m_col2:
+            st.download_button(
+                label="📥 下载 .m 仿真代码文件",
+                data=m_code,
+                file_name="gtps_causal_simulation.m",
+                mime="text/plain",
+                type="primary",
+                use_container_width=True
+            )
+        st.code(m_code, language="matlab")
 
 
 # ---------------- TAB 3: 虚拟战略闭门峰会 · 红蓝对抗圆桌 ----------------
