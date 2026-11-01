@@ -156,7 +156,14 @@ _CAUSAL_TEMPLATE = r"""<!DOCTYPE html>
     }
     var chartDom = document.getElementById('gtps-graph-' + graphId);
     if (!chartDom) return;
-    
+
+    // 容器不可见（Streamlit Tab 未激活时为 display:none，尺寸为 0）则轮询等待，
+    // 直到容器获得真实尺寸再初始化，避免以 0x0 初始化后 ResizeObserver 不触发
+    if (chartDom.clientWidth === 0 || chartDom.clientHeight === 0) {
+      setTimeout(initChart, 120);
+      return;
+    }
+
     // 强制显式指定渲染物理尺寸，彻底防御 Streamlit Tab 切换时的 display:none (0px x 0px) 问题
     var initWidth = chartDom.clientWidth || window.innerWidth || 900;
     var initHeight = (_HEIGHT_);
@@ -333,7 +340,7 @@ _ENTITY_TEMPLATE = r"""<!DOCTYPE html>
 </style>
 </head>
 <body>
-<div style="position:relative;width:100%;height:100%;">
+<div style="position:relative;width:100%;height:(_HEIGHT_)px;">
   <div class="gtps-title-e">GTPS 事件-实体关联图谱 <span>星形拓扑 · 中心节点 = 事件</span></div>
   <div id="gtps-entity-{{GRAPH_ID}}" style="width:100%;height:(_HEIGHT_)px;"></div>
 </div>
@@ -351,6 +358,13 @@ _ENTITY_TEMPLATE = r"""<!DOCTYPE html>
     }
     var chartDom = document.getElementById('gtps-entity-' + graphId);
     if (!chartDom) return;
+
+    // 容器不可见（Tab 未激活 display:none，尺寸为 0）则轮询等待真实尺寸
+    if (chartDom.clientWidth === 0 || chartDom.clientHeight === 0) {
+      setTimeout(initChart, 120);
+      return;
+    }
+
     var initWidth = chartDom.clientWidth || window.innerWidth || 900;
     var initHeight = (_HEIGHT_);
     var chart = echarts.init(chartDom, null, {
