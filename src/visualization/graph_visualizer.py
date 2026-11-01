@@ -238,9 +238,9 @@ _CAUSAL_TEMPLATE = r"""<!DOCTYPE html>
       focusNodeAdjacency: true,
       draggable: true,
       force: {
-        repulsion: 550,
-        edgeLength: [120, 220],
-        gravity: 0.08,
+        repulsion: 380,
+        edgeLength: [80, 160],
+        gravity: 0.12,
         friction: 0.6,
         layoutAnimation: true
       },
